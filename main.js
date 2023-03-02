@@ -3,7 +3,7 @@ import { Server } from "socket.io";
 import mongoose from "mongoose";
 import Log from "../Database/models/log.js"
 import { SerialPort } from 'serialport'
-import { ReadlineParser } from ("@serialport/parser-readline");
+import { ReadlineParser } from "@serialport/parser-readline";
 
 var loop;
 // Bypass CORS policy
@@ -16,6 +16,7 @@ const io = new Server(4121, {
 // define serial port
 const port = new SerialPort({
   path: "COM3",
+  // path: "/dev/ttyUSB0",
   baudRate: 9600,
   dataBits: 8,
   parity: "none",
@@ -42,7 +43,7 @@ mongoose.connect(mongoDB).then(() => { // Connect to mongoDB
 io.on("connection", (socket) => {
 
   // Log when client connects
-  console.log("Client connected");
+  console.log("Client connected: " + socket.id);
 
   // If this message is received then do something
   socket.on("open door", (...args) => {
@@ -70,6 +71,8 @@ io.on("disconnect", (socket) => {
   if (socket.length === 0) {
     stopStreaming();
   }
+
+  console.log("Client disconnected: " + socket.id);
 })
 
 function stopStreaming() {
