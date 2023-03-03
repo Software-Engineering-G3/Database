@@ -42,8 +42,13 @@ mongoose.connect(mongoDB).then(() => { // Connect to mongoDB
 
 io.on("connection", (socket) => {
 
-  // Log when client connects
+  // Log which and when a client connects
   console.log("Client connected: " + socket.id);
+
+  // Log which, when and for what reason a client disconnects
+  socket.on("disconnect", (reason) => {
+    console.log("Client disconnected: " + socket.id + ", reason: " + reason);
+  });
 
   // If this message is received then do something
   socket.on("open door", (...args) => {
@@ -61,7 +66,7 @@ io.on("connection", (socket) => {
     console.log(`got ${event}`);
     new Log({action: event}).save(function(err, doc) {
       if (err) return console.error(err);
-      console.log("Document inserted succussfully!");
+      console.log("Document inserted successfully!");
     });
   });
 });
@@ -71,8 +76,6 @@ io.on("disconnect", (socket) => {
   if (socket.length === 0) {
     stopStreaming();
   }
-
-  console.log("Client disconnected: " + socket.id);
 })
 
 function stopStreaming() {
