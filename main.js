@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import Log from "../Database/models/log.js"
 import { SerialPort } from 'serialport'
 import { ReadlineParser } from "@serialport/parser-readline";
+import Player from "./components/player";
 
 var loop;
 // Bypass CORS policy
@@ -40,6 +41,9 @@ mongoose.connect(mongoDB).then(() => { // Connect to mongoDB
   console.log("MongoDB connected");
 }).catch(err => console.log(err));
 
+// Define music player:
+const player = new Player(['Basshunter - Now Your Gone.mp3']);
+
 io.on("connection", (socket) => {
 
   // Log which and when a client connects
@@ -54,6 +58,13 @@ io.on("connection", (socket) => {
   socket.on("open door", (...args) => {
     console.log("Door opened xd");
   });
+
+  socket.on("play music", async () => { player.play(); });
+  socket.on("pause music", async () => { player.pause(); });
+  socket.on("stop music", async () => { player.stop(); });
+  socket.on("next song", async () => { console.log("'Next song' func is not implemented at this point."); });
+  socket.on("prev song", async () => { console.log("'Prev song' func is not implemented at this point."); });
+  socket.on("get title", async (...args) => {});
 
  loop = setInterval(() => {
     const random = Math.floor((Math.random() * 1300) + 1);
