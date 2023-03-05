@@ -65,7 +65,10 @@ const Player = class {
         this.play();
     }
     
-    async get_title(){}
+    // returns the title of the currently playing song, or an empty string if no song is currently playing.
+    async get_title(){
+        return this.current.src;
+    }
 };
 
 export default Player;

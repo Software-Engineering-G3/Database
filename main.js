@@ -64,7 +64,7 @@ io.on("connection", (socket) => {
   socket.on("stop music", async () => { player.stop(); });
   socket.on("next song", async () => { console.log("'Next song' func is not implemented at this point."); });
   socket.on("prev song", async () => { console.log("'Prev song' func is not implemented at this point."); });
-  socket.on("get title", async (...args) => {});
+  socket.on("get title", async () => { player.get_title(); });
 
  loop = setInterval(() => {
     const random = Math.floor((Math.random() * 1300) + 1);
