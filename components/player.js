@@ -9,11 +9,11 @@ const PlayerState = Object.freeze({
 
 const Player = class {
     constructor(...args){
-        index = 0;
-        length = length(args);
-        songs = args;
-        current = null
-        state = PlayerState.Unitialized
+        this.index = 0;
+        this.length = args.length;
+        this.songs = args;
+        this.current = null
+        this.state = PlayerState.Unitialized
     }
 
     async play(){

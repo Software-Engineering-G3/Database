@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import Log from "../Database/models/log.js"
 import { SerialPort } from 'serialport'
 import { ReadlineParser } from "@serialport/parser-readline";
-import Player from "./components/player";
+import Player from "./components/player.js";
 
 var loop;
 // Bypass CORS policy
