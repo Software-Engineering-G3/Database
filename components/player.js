@@ -12,8 +12,8 @@ const Player = class {
         this.index = 0;
         this.length = args.length;
         this.songs = args;
-        this.current = null
-        this.state = PlayerState.Unitialized
+        this.current = null;
+        this.state = PlayerState.Unitialized;
     }
 
     async play(){
@@ -65,7 +65,6 @@ const Player = class {
         this.play();
     }
     
-    // returns the title of the currently playing song, or an empty string if no song is currently playing.
     async get_title(){
         return this.current.src;
     }
