@@ -18,11 +18,31 @@ var serialcom = true
 var port
 var parser
 
-try{
-  await initSerial()
-}catch(error){
-  serialcom = false
-  console.log("A big scary warning!")
+const errorTest = async() => {
+  try{
+    // define serial port
+    port = new SerialPort({
+      path: "COM3",
+      // path: "/dev/ttyUSB0",
+      baudRate: 9600,
+      dataBits: 8,
+      parity: "none",
+      stopBits: 1,
+    });
+
+    //parse
+    parser = port.pipe(new ReadlineParser({ delimiter: "\r\n" }));
+    port.on("open", () => {
+      console.log("Serial Port Opened.");
+
+      parser.on("data", (data) => {
+        console.log(data);
+      });
+    });
+  }catch(error){
+    serialcom = false
+    console.log("A big scary warning!")
+  }
 }
 
 const mongoDB = 'mongodb+srv://hpmanen0:lolxd@seproject-group3.fdnfesb.mongodb.net/?retryWrites=true&w=majority';
@@ -82,26 +102,4 @@ io.on("disconnect", (socket) => {
 
 function stopStreaming() {
   clearInterval(loop);
-}
-
-async function initSerial(){
-// define serial port
-  port = new SerialPort({
-    path: "COM3",
-    // path: "/dev/ttyUSB0",
-    baudRate: 9600,
-    dataBits: 8,
-    parity: "none",
-    stopBits: 1,
-  });
-
-  //parse
-  parser = port.pipe(new ReadlineParser({ delimiter: "\r\n" }));
-  port.on("open", () => {
-    console.log("Serial Port Opened.");
-
-    parser.on("data", (data) => {
-      console.log(data);
-    });
-  });
 }
