@@ -15,27 +15,11 @@ const io = new Server(4121, {
 });
 
 var serialcom = true
-// define serial port
+var port
+var parser
 
 try{
-  const port = new SerialPort({
-    path: "COM3",
-    // path: "/dev/ttyUSB0",
-    baudRate: 9600,
-    dataBits: 8,
-    parity: "none",
-    stopBits: 1,
-  });
-
-  //parse
-  const parser = port.pipe(new ReadlineParser({ delimiter: "\r\n" }));
-  port.on("open", () => {
-    console.log("Serial Port Opened.");
-
-    parser.on("data", (data) => {
-      console.log(data);
-    });
-  });
+  await initSerial()
 }catch(error){
   serialcom = false
   console.log("A big scary warning!")
@@ -98,4 +82,26 @@ io.on("disconnect", (socket) => {
 
 function stopStreaming() {
   clearInterval(loop);
+}
+
+async function initSerial(){
+// define serial port
+  port = new SerialPort({
+    path: "COM3",
+    // path: "/dev/ttyUSB0",
+    baudRate: 9600,
+    dataBits: 8,
+    parity: "none",
+    stopBits: 1,
+  });
+
+  //parse
+  parser = port.pipe(new ReadlineParser({ delimiter: "\r\n" }));
+  port.on("open", () => {
+    console.log("Serial Port Opened.");
+
+    parser.on("data", (data) => {
+      console.log(data);
+    });
+  });
 }
