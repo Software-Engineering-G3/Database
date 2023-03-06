@@ -1,51 +1,50 @@
-'use strict';
-import { Server } from "socket.io";
-import mongoose from "mongoose";
-import Log from "../Database/models/log.js"
+import { Server } from "socket.io"
+import mongoose from "mongoose"
+import Log from "./models/log.js"
 import { SerialPort } from 'serialport'
-import { ReadlineParser } from "@serialport/parser-readline";
-import Player from "./components/player.js";
+import { ReadlineParser } from "@serialport/parser-readline"
+import Player from "./components/player.js"
+import { readFileSync } from "fs"
+import { createServer } from "https"
 
 var loop;
+
+const httpsServer = createServer({
+  key: readFileSync("key/server-key.pem"),
+  cert: readFileSync("key/server-cert.pem")
+});
+
 // Bypass CORS policy
-const io = new Server(4121, {
+const io = new Server(httpsServer, {
   cors: {
     origin: '*'
   }
 });
 
-var port
-var parser
+const port = new SerialPort({
+  path: "COM3",
+  // path: "/dev/ttyUSB0",
+  baudRate: 9600,
+  dataBits: 8,
+  parity: "none",
+  stopBits: 1,
+});
 
-const errorTest = async() => {
-  // define serial port
-  port = new SerialPort({
-    path: "COM3",
-    // path: "/dev/ttyUSB0",
-    baudRate: 9600,
-    dataBits: 8,
-    parity: "none",
-    stopBits: 1,
+//parse
+const parser = port.pipe(new ReadlineParser({ delimiter: "\r\n" }));
+port.open();
+
+port.on("open", () => {
+  console.log("Serial Port Opened.");
+
+  parser.on("data", (data) => {
+    console.log(data);
   });
+});
 
-  //parse
-  parser = port.pipe(new ReadlineParser({ delimiter: "\r\n" }));
-  port.open();
-
-  port.on("open", () => {
-    console.log("Serial Port Opened.");
-
-    parser.on("data", (data) => {
-      console.log(data);
-    });
-  });
-
-  port.on("error", (error) => {
-    console.error("A big scary warning!");
-  });
-}
-
-errorTest()
+port.on("error", (error) => {
+  console.error("A big scary warning!");
+});
 
 const mongoDB = 'mongodb+srv://hpmanen0:lolxd@seproject-group3.fdnfesb.mongodb.net/?retryWrites=true&w=majority';
 mongoose.set("strictQuery", false);
@@ -97,11 +96,11 @@ io.on("connection", (socket) => {
 
 io.on("disconnect", (socket) => {
   //no more connection to socket then stop
-  if (socket.length === 0) {
-    stopStreaming();
-  }
+  stopStreaming();
 })
 
 function stopStreaming() {
   clearInterval(loop);
 }
+
+httpsServer.listen(4121);
