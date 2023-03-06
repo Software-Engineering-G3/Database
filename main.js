@@ -14,36 +14,38 @@ const io = new Server(4121, {
   }
 });
 
-var serialcom = true
 var port
 var parser
 
 const errorTest = async() => {
-  try{
-    // define serial port
-    port = new SerialPort({
-      path: "COM3",
-      // path: "/dev/ttyUSB0",
-      baudRate: 9600,
-      dataBits: 8,
-      parity: "none",
-      stopBits: 1,
-    });
+  // define serial port
+  port = new SerialPort({
+    path: "COM3",
+    // path: "/dev/ttyUSB0",
+    baudRate: 9600,
+    dataBits: 8,
+    parity: "none",
+    stopBits: 1,
+  });
 
-    //parse
-    parser = port.pipe(new ReadlineParser({ delimiter: "\r\n" }));
-    port.on("open", () => {
-      console.log("Serial Port Opened.");
+  //parse
+  parser = port.pipe(new ReadlineParser({ delimiter: "\r\n" }));
+  port.open();
 
-      parser.on("data", (data) => {
-        console.log(data);
-      });
+  port.on("open", () => {
+    console.log("Serial Port Opened.");
+
+    parser.on("data", (data) => {
+      console.log(data);
     });
-  }catch(error){
-    serialcom = false
-    console.log("A big scary warning!")
-  }
+  });
+
+  port.on("error", (error) => {
+    console.error("A big scary warning!");
+  });
 }
+
+errorTest()
 
 const mongoDB = 'mongodb+srv://hpmanen0:lolxd@seproject-group3.fdnfesb.mongodb.net/?retryWrites=true&w=majority';
 mongoose.set("strictQuery", false);
