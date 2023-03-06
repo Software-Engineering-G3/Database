@@ -12,6 +12,10 @@ const logSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
         required: true
+    },
+    feedback:{
+        type: String,
+        required: true
     }
 })
 
