@@ -6,6 +6,7 @@ import { ReadlineParser } from "@serialport/parser-readline"
 import Player from "./components/player.js"
 import { readFileSync } from "fs"
 import { createServer } from "https"
+import { createServer as createhttpServer} from "http"
 
 var loop;
 
@@ -14,8 +15,10 @@ const httpsServer = createServer({
   cert: readFileSync("key/server-cert.pem")
 });
 
+const httpServer = createhttpServer({})
+
 // Bypass CORS policy
-const io = new Server(httpsServer, {
+const io = new Server({
   cors: {
     origin: '*'
   }
@@ -43,7 +46,7 @@ port.on("open", () => {
 });
 
 port.on("error", (error) => {
-  console.error("A big scary warning!");
+  console.error("No Smart Home detected");
 });
 
 const mongoDB = 'mongodb+srv://hpmanen0:lolxd@seproject-group3.fdnfesb.mongodb.net/?retryWrites=true&w=majority';
@@ -104,3 +107,7 @@ function stopStreaming() {
 }
 
 httpsServer.listen(4121);
+httpServer.listen(4122);
+
+io.attach(httpServer)
+io.attach(httpsServer)
