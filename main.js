@@ -62,8 +62,8 @@ io.on("connection", (socket) => {
   socket.on("play music", async () => { player.play(); });
   socket.on("pause music", async () => { player.pause(); });
   socket.on("stop music", async () => { player.stop(); });
-  socket.on("next song", async () => { console.log("'Next song' func is not implemented at this point."); });
-  socket.on("prev song", async () => { console.log("'Prev song' func is not implemented at this point."); });
+  socket.on("next song", async () => { player.next(); });
+  socket.on("prev song", async () => { console.log(); });
   socket.on("get title", async () => { player.get_title(); });
 
  loop = setInterval(() => {
