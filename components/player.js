@@ -12,8 +12,8 @@ const Player = class {
         this.index = 0;
         this.length = args.length;
         this.songs = args;
-        this.current = null
-        this.state = PlayerState.Unitialized
+        this.current = null;
+        this.state = PlayerState.Unitialized;
     }
 
     async play(){
