@@ -34,7 +34,7 @@ const port = new SerialPort({
 });
 
 //parse
-const parser = port.pipe(new ReadlineParser({ delimiter: "\r\n" }));
+const parser = port.pipe(new ReadlineParser());
 port.open();
 
 port.on("open", () => {
@@ -42,13 +42,14 @@ port.on("open", () => {
 });
 
 parser.on("data", (data) => {
+  data = split_command(data)
   console.log(data);
-  /*
-  new Log({action: data, feedback: "Success!"}).save(function(err, doc) {
+
+  new Log({action: data[0], state: data[1] ,feedback: 'Success'}).save(function(err, doc) {
     if (err) return console.error(err);
     console.log("Document inserted successfully!");
   });
-  */
+
 });
 
 port.on("error", (error) => {
@@ -117,3 +118,42 @@ httpServer.listen(4122);
 
 io.attach(httpServer)
 io.attach(httpsServer)
+
+function split_command(command) {
+  var commandlist = command.split("_")
+
+  var action = commandlist[0].replace(/[?!&-]/, "")
+  var state = commandlist[1]
+
+  if(action == "il"){
+    action = "Indoor Lamp"
+  }else if(action == 'ol'){
+    action = "Outdoor Lamp"
+  }else if(action == 'bz'){
+    action = "Buzzer"
+  }else if(action == 'dr'){
+    action = "Door"
+  }else if(action == 'fan'){
+    action = "Fan"
+  }else if(action == 're'){
+    action = "Relay"
+  }else if(action == 'wi'){
+    action = "Window"
+  }
+
+  if(state == '1'){
+    if(state in ['Window', 'Door']){
+      state = 'Open'
+    }else{
+      state = 'On'
+    }
+  }else{
+    if(state in ['Window', 'Door']){
+      state = 'Closed'
+    }else{
+      state = 'Off'
+    }
+  }
+
+  return [action, state]
+}

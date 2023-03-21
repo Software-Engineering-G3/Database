@@ -4,7 +4,7 @@ await mongoose.connect('mongodb+srv://hpmanen0:lolxd@seproject-group3.fdnfesb.mo
 mongoose.set('strictQuery', true);
 
 const logSchema = new mongoose.Schema({
-    action: {
+    action:{
         type: String,
         required: true
     },
@@ -14,6 +14,10 @@ const logSchema = new mongoose.Schema({
         required: true
     },
     feedback:{
+        type: String,
+        required: true
+    },
+    state:{
         type: String,
         required: true
     }
