@@ -39,10 +39,16 @@ port.open();
 
 port.on("open", () => {
   console.log("Serial Port Opened.");
+});
 
-  parser.on("data", (data) => {
-    console.log(data);
+parser.on("data", (data) => {
+  console.log(data);
+  /*
+  new Log({action: data, feedback: "Success!"}).save(function(err, doc) {
+    if (err) return console.error(err);
+    console.log("Document inserted successfully!");
   });
+  */
 });
 
 port.on("error", (error) => {
@@ -69,11 +75,6 @@ io.on("connection", (socket) => {
     console.log("Client disconnected: " + socket.id + ", reason: " + reason);
   });
 
-  // If this message is received then do something
-  socket.on("open door", (...args) => {
-    console.log("Door opened xd");
-  });
-
   socket.on("play music", async () => { player.play(); });
   socket.on("pause music", async () => { player.pause(); });
   socket.on("stop music", async () => { player.stop(); });
@@ -90,6 +91,11 @@ io.on("connection", (socket) => {
   // Log every received message
   socket.onAny((event, ...args) => {
     console.log(`got ${event}`);
+    port.write(event, (err) => {
+      if(err){
+        return console.log('Error: ', err.message)
+      }
+    })
     new Log({action: event, feedback: "Success!"}).save(function(err, doc) {
       if (err) return console.error(err);
       console.log("Document inserted successfully!");
