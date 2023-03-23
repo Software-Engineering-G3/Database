@@ -63,7 +63,7 @@ io.on("connection", (socket) => {
   socket.on("pause music", async () => { player.pause(); });
   socket.on("stop music", async () => { player.stop(); });
   socket.on("next song", async () => { player.next(); });
-  socket.on("prev song", async () => { console.log(); });
+  socket.on("prev song", async () => { player.prev(); });
   socket.on("get title", async () => { player.get_title(); });
 
  loop = setInterval(() => {
