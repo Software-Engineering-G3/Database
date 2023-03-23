@@ -9,6 +9,8 @@ const PlayerState = Object.freeze({
 
 const Player = class {
     constructor(...args){
+        if(args.length == 0)
+            throw new Error("No song was provided in the argument list.");
         this.index = 0;
         this.length = args.length;
         this.songs = args;
@@ -16,18 +18,24 @@ const Player = class {
         this.state = PlayerState.Unitialized;
     }
 
-    async play(){
-        // Create a new instance of Audic with the current song
-        this.current = new Audic(songs[index])
-        
-        // Play the current song
-        this.current.play();
-        
-        // Set the state of the player to Playing
-        this.state = PlayerState.Playing;
+    async play(){   
+        try {
+            // Create a new instance of Audic with the current song
+            this.current = new Audic(this.songs[this.index]);
 
-        // When the current song ends, destroy the current instance of Audic
-        this.current.addEventListener("ended", () => { this.current.destroy(); })
+            // Play the current song
+            await this.current.play();
+            
+            // Set the state of the player to Playing
+            this.state = PlayerState.Playing;
+
+            // When the current song ends, destroy the current instance of Audic
+            this.current.addEventListener("ended", () => { this.current.destroy(); });
+        } catch (error) {
+            // If there is an error initializing the Audic instance, log the error and set the state of the player to Unitialized
+            console.error(error);
+            this.state = PlayerState.Unitialized;
+        }
     }
 
     async pause(){
