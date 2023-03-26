@@ -94,8 +94,9 @@ const Player = class {
         this.play();
     }
     
-    async get_title(){
+    async getPlayingSong(){
         // This method could be used to retrieve the title of the current song
+        return this.current.src;
     }
 };
 
