@@ -64,7 +64,7 @@ io.on("connection", (socket) => {
   socket.on("stop music", async () => { player.stop(); });
   socket.on("next song", async () => { player.next(); });
   socket.on("prev song", async () => { player.prev(); });
-  socket.on("get title", async () => { player.get_title(); });
+  socket.on("get song", async () => { player.getPlayingSong(); });
 
  loop = setInterval(() => {
     const random = Math.floor((Math.random() * 1300) + 1);
