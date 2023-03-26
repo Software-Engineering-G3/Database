@@ -4,7 +4,7 @@ const PlayerState = Object.freeze({
     Playing: 1,
     Pause: 2,
     Stopped: 0,
-    Unitialized: -1
+    Uninitialized: -1
 });
 
 const Player = class {
@@ -15,7 +15,7 @@ const Player = class {
         this.length = args.length;
         this.songs = args;
         this.current = null;
-        this.state = PlayerState.Unitialized;
+        this.state = PlayerState.Uninitialized;
     }
 
     async play(){   
@@ -34,7 +34,7 @@ const Player = class {
         } catch (error) {
             // If there is an error initializing the Audic instance, log the error and set the state of the player to Unitialized
             console.error(error);
-            this.state = PlayerState.Unitialized;
+            this.state = PlayerState.Uninitialized;
         }
     }
 
