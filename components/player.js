@@ -2,7 +2,7 @@ import Audic from 'audic';
 
 const PlayerState = Object.freeze({
     Playing: 1,
-    Pause: 2,
+    Paused: 2,
     Stopped: 0,
     Uninitialized: -1
 });
@@ -45,13 +45,13 @@ const Player = class {
             this.current.pause();
             
             // Set the state of the player to Pause
-            this.state = PlayerState.Pause;
+            this.state = PlayerState.Paused;
         }
     }
 
     async stop(){
         // Check if the current song is playing or if the player is in a paused state
-        if(this.current.playing || this.state == PlayerState.Pause){
+        if(this.current.playing || this.state == PlayerState.Paused){
             // Destroy the instance of Audic
             this.current.destroy();
             
