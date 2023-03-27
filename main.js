@@ -104,7 +104,7 @@ io.on("connection", (socket) => {
   // Log every received message
   socket.onAny((event, ...args) => {
     console.log(`got ${event}`);
-    port.write(event, (err) => {
+    port.write(event+'\n', (err) => {
       if(err){
         return console.log('Error: ', err.message)
       }
