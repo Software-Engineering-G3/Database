@@ -42,14 +42,26 @@ port.on("open", () => {
 });
 
 parser.on("data", (data) => {
-  data = split_command(data)
-  console.log(data);
+  var data = split_command(line)
 
-  new Log({action: data[0], state: data[1] ,feedback: 'Success'}).save(function(err, doc) {
-    if (err) return console.error(err);
-    console.log("Document inserted successfully!");
-  });
+  const filter = {component: data[0]}
+  const update = {state: data[1]}
 
+  if(data != 'error'){
+    Status.findOneAndUpdate(filter, update, {
+      new: true
+    }).then((err) => {
+      err.save()
+      console.log("Successful!");
+    })
+
+    new Log({component: data[0], state: data[1] ,feedback: 'Success!'}).save(function(err, doc) {
+      if (err) return console.error(err);
+      console.log("Document inserted successfully!");
+    });
+ }else{
+    console.log("Received invalid value");
+ }
 });
 
 port.on("error", (error) => {
@@ -97,10 +109,6 @@ io.on("connection", (socket) => {
         return console.log('Error: ', err.message)
       }
     })
-    new Log({action: event, feedback: "Success!"}).save(function(err, doc) {
-      if (err) return console.error(err);
-      console.log("Document inserted successfully!");
-    });
   });
 });
 
@@ -139,6 +147,8 @@ function split_command(command) {
     action = "Relay"
   }else if(action == 'wi'){
     action = "Window"
+  }else{
+    return 'error'
   }
 
   if(state == '1'){
