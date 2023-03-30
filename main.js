@@ -80,6 +80,10 @@ const player = new Player(['Basshunter - Now Your Gone.mp3']);
 
 io.on("connection", (socket) => {
 
+  Status.find().then(result => {
+    socket.emit("Info", result)
+  })
+
   // Log which and when a client connects
   console.log("Client connected: " + socket.id);
 
@@ -95,15 +99,17 @@ io.on("connection", (socket) => {
   socket.on("prev song", async () => { player.prev(); });
   socket.on("get song", async () => { player.getPlayingSong(); });
 
- loop = setInterval(() => {
+  loop = setInterval(() => {
     const random = Math.floor((Math.random() * 1300) + 1);
     // console.log(random);
     socket.emit("random", random); // Sends random number to client
   }, 3000);
 
   // Log every received message
-  socket.onAny((event, ...args) => {
+  socket.onAny((event, ...message) => {
+    // Log event for name of event, Log message for event data/message
     console.log(`got ${event}`);
+    
     port.write(event+'\n', (err) => {
       if(err){
         return console.log('Error: ', err.message)
