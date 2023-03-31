@@ -20,7 +20,7 @@ const Player = class {
 
     async play(){   
         try {
-            if(this.current.Paused) {
+            if(this.state == PlayerState.Paused) {
                 await this.current.play();
                 this.state = PlayerState.Playing;
             }
