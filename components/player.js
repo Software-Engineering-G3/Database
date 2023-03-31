@@ -76,7 +76,7 @@ const Player = class {
         this.play();
     }
     
-    async getPlayingSong(){
+    getPlayingSong(){
         return this.current.src;
     }
 };
