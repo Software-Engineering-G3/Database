@@ -21,14 +21,14 @@ const Player = class {
     async play(){   
         try {
             if(this.state == PlayerState.Paused) {
-                await this.current.play();
                 this.state = PlayerState.Playing;
             }
             else {
                 this.current = new Audic(this.songs[this.index]);
-                await this.current.play();
                 this.state = PlayerState.Playing;
             }
+            
+            await this.current.play();
             this.current.addEventListener("ended", () => { this.current.destroy(); });
         } catch (error) {
             console.error(error);
@@ -37,7 +37,7 @@ const Player = class {
     }
 
     async pause(){
-        if(this.state == PlayerState.Paused) return;
+        //if(this.state == PlayerState.Paused) return;
         if(this.state == PlayerState.Playing){
             this.current.pause();
             this.state = PlayerState.Paused;
