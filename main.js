@@ -98,7 +98,7 @@ io.on("connection", (socket) => {
     console.log("Client disconnected: " + socket.id + ", reason: " + reason);
   });
 
-  socket.on("play music", () => { player.play(); });
+  socket.on("play music", async () => { player.play(); });
   socket.on("pause music", async () => { player.pause(); });
   socket.on("stop music", async () => { player.stop(); });
   socket.on("next song", async () => { player.next(); });

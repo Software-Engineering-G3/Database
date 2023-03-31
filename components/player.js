@@ -38,15 +38,15 @@ const Player = class {
 
     async pause(){
         if(this.state == PlayerState.Paused) return;
-        if(this.current.playing){
+        if(this.state == PlayerState.Playing){
             this.current.pause();
             this.state = PlayerState.Paused;
         }
     }
 
     async stop(){
-        if(this.state == PlayerState.Stopped) return;
-        if(this.current.playing || this.state == PlayerState.Paused){
+        if(this.current == null && this.state == PlayerState.Stopped) return;
+        if(this.state == PlayerState.Playing || this.state == PlayerState.Paused){
             this.current.destroy();
             this.state = PlayerState.Stopped;
         }
@@ -57,7 +57,7 @@ const Player = class {
             return;
 
         --this.index;
-        if(this.index < this.length)
+        if(this.index < 0)
             this.index = 0;
 
         this.stop();
