@@ -7,6 +7,7 @@ import Player from "./components/player.js"
 import { readFileSync } from "fs"
 import { createServer } from "https"
 import { createServer as createhttpServer} from "http"
+import Status from "./models/status.js"
 
 var loop;
 
@@ -76,7 +77,12 @@ mongoose.connect(mongoDB).then(() => { // Connect to mongoDB
 }).catch(err => console.log(err));
 
 // Define music player:
-const player = new Player(['Basshunter - Now Your Gone.mp3']);
+const location = "/music/"
+const player = new Player([
+  location + "George Ezra - Green Green Grass.mp3",
+  location + "Blink 182 - What's My Age Again.mp3",
+  location + "Blink 182 - The Rock Show.mp3"
+]);
 
 io.on("connection", (socket) => {
 
@@ -92,7 +98,7 @@ io.on("connection", (socket) => {
     console.log("Client disconnected: " + socket.id + ", reason: " + reason);
   });
 
-  socket.on("play music", async () => { player.play(); });
+  socket.on("play music", () => { player.play(); });
   socket.on("pause music", async () => { player.pause(); });
   socket.on("stop music", async () => { player.stop(); });
   socket.on("next song", async () => { player.next(); });

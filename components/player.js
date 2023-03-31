@@ -8,7 +8,7 @@ const PlayerState = Object.freeze({
 });
 
 const Player = class {
-    constructor(...args){
+    constructor(args){
         if(args.length == 0)
             throw new Error("No song was provided in the argument list.");
         this.index = 0;
@@ -16,6 +16,9 @@ const Player = class {
         this.songs = args;
         this.current = null;
         this.state = PlayerState.Uninitialized;
+
+        console.log("length:" + this.length)
+        console.log("songs:" + this.songs)
     }
 
     async play(){   
@@ -26,6 +29,8 @@ const Player = class {
             // Play the current song
             await this.current.play();
             
+            console.log("Playing: " + this.current.src)
+
             // Set the state of the player to Playing
             this.state = PlayerState.Playing;
 
