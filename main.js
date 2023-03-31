@@ -1,15 +1,13 @@
 import { Server } from "socket.io"
 import mongoose from "mongoose"
+import Log from "./models/log.js"
 import { SerialPort } from 'serialport'
 import { ReadlineParser } from "@serialport/parser-readline"
-import Log from "./models/log.js"
 import Player from "./components/player.js"
-import User from "./models/user.js"
-import Status from "./models/status.js"
 import { readFileSync } from "fs"
 import { createServer } from "https"
 import { createServer as createhttpServer} from "http"
-import bcryptjs from "bcryptjs"
+
 var loop;
 
 const httpsServer = createServer({
@@ -44,30 +42,27 @@ port.on("open", () => {
 });
 
 parser.on("data", (data) => {
-  const regex = /[?!&-]/
-  if(regex.test(data)){ // If data includes any of the command signs
-    var data = split_command(line)
+  var data = split_command(line)
 
-    const filter = {component: data[0]}
-    const update = {state: data[1]}
-  
-    if(data != 'error'){
-      Status.findOneAndUpdate(filter, update, {
-        new: true
-      }).then((err) => {
-        err.save()
-        console.log("Successful!");
-      })
-  
-      new Log({component: data[0], state: data[1] ,feedback: 'Success!'}).save(function(err, doc) {
-        if (err) return console.error(err);
-        console.log("Document inserted successfully!");
-      });
-   }else{
-      console.log("Received invalid value");
-   }
-  }
-})
+  const filter = {component: data[0]}
+  const update = {state: data[1]}
+
+  if(data != 'error'){
+    Status.findOneAndUpdate(filter, update, {
+      new: true
+    }).then((err) => {
+      err.save()
+      console.log("Successful!");
+    })
+
+    new Log({component: data[0], state: data[1] ,feedback: 'Success!'}).save(function(err, doc) {
+      if (err) return console.error(err);
+      console.log("Document inserted successfully!");
+    });
+ }else{
+    console.log("Received invalid value");
+ }
+});
 
 port.on("error", (error) => {
   console.error("No Smart Home detected");
@@ -84,21 +79,6 @@ mongoose.connect(mongoDB).then(() => { // Connect to mongoDB
 const player = new Player(['Basshunter - Now Your Gone.mp3']);
 
 io.on("connection", (socket) => {
-  const testUser = {
-    username: "testuser",
-    password: "verysafepassword"
-  }
-  
-  User.findOne({username: testUser.username}).then((user, err) => {
-    const result = bcryptjs.compareSync(testUser.password, user.password)
-     // console.log(user.password)
-    //  console.log(compare)
-      if(result){
-        console.log("yay");
-      }else{
-        console.log("bruh")
-      }
-  })
 
   Status.find().then(result => {
     socket.emit("Info", result)
@@ -150,7 +130,7 @@ function stopStreaming() {
 httpsServer.listen(4121);
 httpServer.listen(4122);
 
-io.attach(httpServer) // Weeb :3
+io.attach(httpServer)
 io.attach(httpsServer)
 
 function split_command(command) {
