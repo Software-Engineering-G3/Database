@@ -53,7 +53,7 @@ port.on("open", () => {
 parser.on("data", (data) => {
   const regex = /[?!&-]/
   if(regex.test(data)){ // If data includes any of the command signs
-    var data = split_command(line)
+    var data = split_command(data)
 
 
     const filter = {component: data[0]}
