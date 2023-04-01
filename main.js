@@ -10,6 +10,8 @@ import { readFileSync } from "fs"
 import { createServer } from "https"
 import { createServer as createhttpServer} from "http"
 import bcryptjs from "bcryptjs"
+import { glob } from "glob"
+
 var loop;
 
 
@@ -93,7 +95,9 @@ mongoose.connect(mongoDB).then(() => { // Connect to mongoDB
 
 
 // Define music player:
-const player = new Player(['Basshunter - Now Your Gone.mp3']);
+const directory = "./music/"
+let songs = glob.sync(directory + '*.mp3')
+const player = new Player(songs, true);
 
 
 io.on("connection", (socket) => {
@@ -128,13 +132,13 @@ io.on("connection", (socket) => {
     console.log("Client disconnected: " + socket.id + ", reason: " + reason);
   });
 
-
-  socket.on("play music", async () => { player.play(); });
-  socket.on("pause music", async () => { player.pause(); });
-  socket.on("stop music", async () => { player.stop(); });
-  socket.on("next song", async () => { player.next(); });
-  socket.on("prev song", async () => { player.prev(); });
-  socket.on("get song", async () => { player.getPlayingSong(); });
+  socket.on("+play music", async () => { player.play(); });
+  socket.on("+pause music", async () => { player.pause(); });
+  socket.on("+stop music", async () => { player.stop(); });
+  socket.on("+next song", async () => { player.next(); });
+  socket.on("+prev song", async () => { player.prev(); });
+  socket.on("+update list", async () => { player.updateList(); });
+  socket.on("+get song", () => { console.log("Playing: " + player.getPlayingSong()); });
 
 
   loop = setInterval(() => {

@@ -1,4 +1,6 @@
 import Audic from 'audic';
+import NodeID3 from 'node-id3';
+import { glob } from "glob";
 
 const PlayerState = Object.freeze({
     Playing: 1,
@@ -8,94 +10,106 @@ const PlayerState = Object.freeze({
 });
 
 const Player = class {
-    constructor(...args){
+    constructor(args, autoPlay = false){
         if(args.length == 0)
             throw new Error("No song was provided in the argument list.");
+        
         this.index = 0;
-        this.length = args.length;
-        this.songs = args;
+        this.autoPlay = autoPlay;
+        this.songs = [];
         this.current = null;
         this.state = PlayerState.Uninitialized;
+        this.constructMusicList(args);
+
+        console.log("Music Player v 0.0.0.2")
+        console.log("Found: " + this.songs.length + " songs")
+        console.log("Autoplay: " + (this.autoPlay ? "Enabled" : "Disabled") + "\n\n")
+    }
+
+    constructMusicList(songFiles) {
+        songFiles.forEach(song => {
+            const tags = NodeID3.read(song)
+            this.songs.push({
+                title: tags.artist + " - " + tags.title,
+                src: song
+            })
+        });
+    }
+
+    async updateList()
+    {
+        const directory = "./music/"
+        let songs = glob.sync(directory + '*.mp3')
+        this.constructMusicList(songs)
+        console.log(songs)
     }
 
     async play(){   
         try {
-            // Create a new instance of Audic with the current song
-            this.current = new Audic(this.songs[this.index]);
-
-            // Play the current song
-            await this.current.play();
+            if(this.state == PlayerState.Paused) {
+                this.state = PlayerState.Playing;
+            }
+            else {
+                this.current = new Audic(this.songs[this.index].src);
+                this.state = PlayerState.Playing;
+            }
             
-            // Set the state of the player to Playing
-            this.state = PlayerState.Playing;
-
-            // When the current song ends, destroy the current instance of Audic
-            this.current.addEventListener("ended", () => { this.current.destroy(); });
+            await this.current.play();
+            console.log("Now playing: " + this.songs[this.index].title)
+            this.current.addEventListener("ended", () => { 
+               (this.autoPlay ? console.log("Playing next song.") : "");  
+               (this.autoPlay ? this.next() : this.current.destroy()); 
+            });
         } catch (error) {
-            // If there is an error initializing the Audic instance, log the error and set the state of the player to Unitialized
             console.error(error);
             this.state = PlayerState.Uninitialized;
         }
     }
 
     async pause(){
-        // Check if the current song is playing
-        if(this.current.playing){
-            // Pause the current song
+        if(this.state == PlayerState.Playing)
+        {
             this.current.pause();
-            
-            // Set the state of the player to Pause
             this.state = PlayerState.Paused;
         }
     }
 
     async stop(){
-        // Check if the current song is playing or if the player is in a paused state
-        if(this.current.playing || this.state == PlayerState.Paused){
-            // Destroy the instance of Audic
-            this.current.destroy();
-            
-            // Set the state of the player to Stopped
-            this.state = PlayerState.Stopped;
+        if(this.current != null)
+        {
+            if(this.state == PlayerState.Playing || this.state == PlayerState.Paused){
+                this.current.destroy();
+                this.state = PlayerState.Stopped;
+            }
         }
     }
     
     async prev(){
-        // Check if there is only one song in the list
-        if(this.length == 1)
-            return;
+        if(this.songs.length > 1)
+        {
+            --this.index;
+            if(this.index < 0)
+                this.index = 0;
 
-        // Decrement the index of the current song
-        --this.index;
-        
-        // If the index is less than 0, set it to the last song in the list
-        if(this.index < this.length)
-            this.index = 0;
-
-        // Stop the current song and start playing the new song at the updated index
-        this.stop();
-        this.play();
+            this.stop();
+            this.play();
+        }
     }
 
     async next(){
-        // Check if there is only one song in the list
-        if(this.length == 1)
-            return;
-        
-        // Increment the index of the current song
-        ++this.index;
-        
-        // If the index is greater than or equal to the length of the list, set it to 0
-        if(this.index >= this.length)
-            this.index = 0;
-        
-        // Stop the current song and start playing the new song at the updated index
-        this.stop();
-        this.play();
+        if(this.songs.length > 1)
+        {
+            ++this.index;
+            if(this.index >= this.songs.length)
+                this.index = 0;
+            
+            this.stop();
+            this.play();
+        }
     }
     
-    async getPlayingSong(){
-        return this.current.src;
+    getPlayingSong(){
+        return this.songs[this.index].title;
     }
 };
 
