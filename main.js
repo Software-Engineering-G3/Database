@@ -8,6 +8,7 @@ import { readFileSync } from "fs"
 import { createServer } from "https"
 import { createServer as createhttpServer} from "http"
 import Status from "./models/status.js"
+import { glob } from "glob"
 
 var loop;
 
@@ -77,21 +78,9 @@ mongoose.connect(mongoDB).then(() => { // Connect to mongoDB
 }).catch(err => console.log(err));
 
 // Define music player:
-const location = "/music/"
-const player = new Player([
-  {
-    title: "George Ezra - Green Green Grass",
-    src: location + "george-ezra-green-green-grass.mp3"
-  },
-  {
-    title: "Blink 182 - What's My Age Again",
-    src: location + "blink-182-whats-my-age-again.mp3"
-  },
-  {
-    title: "Blink 182 - The Rock Show",
-    src: location + "blink-182-the-rock-show.mp3"
-  }
-], true);
+const directory = "./music/"
+let songs = glob.sync(directory + '*.mp3')
+const player = new Player(songs, true);
 
 io.on("connection", (socket) => {
 
@@ -107,12 +96,13 @@ io.on("connection", (socket) => {
     console.log("Client disconnected: " + socket.id + ", reason: " + reason);
   });
 
-  socket.on("play music", async () => { player.play(); });
-  socket.on("pause music", async () => { player.pause(); });
-  socket.on("stop music", async () => { player.stop(); });
-  socket.on("next song", async () => { player.next(); });
-  socket.on("prev song", async () => { player.prev(); });
-  socket.on("get song", () => { console.log("Playing: " + player.getPlayingSong()); });
+  socket.on("+play music", async () => { player.play(); });
+  socket.on("+pause music", async () => { player.pause(); });
+  socket.on("+stop music", async () => { player.stop(); });
+  socket.on("+next song", async () => { player.next(); });
+  socket.on("+prev song", async () => { player.prev(); });
+  socket.on("+update list", async () => { player.updateList(); });
+  socket.on("+get song", () => { console.log("Playing: " + player.getPlayingSong()); });
 
   loop = setInterval(() => {
     const random = Math.floor((Math.random() * 1300) + 1);

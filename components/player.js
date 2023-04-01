@@ -1,4 +1,6 @@
 import Audic from 'audic';
+import NodeID3 from 'node-id3';
+import { glob } from "glob";
 
 const PlayerState = Object.freeze({
     Playing: 1,
@@ -11,16 +13,35 @@ const Player = class {
     constructor(args, autoPlay = false){
         if(args.length == 0)
             throw new Error("No song was provided in the argument list.");
+        
         this.index = 0;
         this.autoPlay = autoPlay;
-        this.length = args.length;
-        this.songs = args;
+        this.songs = [];
         this.current = null;
         this.state = PlayerState.Uninitialized;
+        this.constructMusicList(args);
 
         console.log("Music Player v 0.0.0.2")
-        console.log("Found: " + this.length + " songs")
+        console.log("Found: " + this.songs.length + " songs")
         console.log("Autoplay: " + (this.autoPlay ? "Enabled" : "Disabled") + "\n\n")
+    }
+
+    constructMusicList(songFiles) {
+        songFiles.forEach(song => {
+            const tags = NodeID3.read(song)
+            this.songs.push({
+                title: tags.artist + " - " + tags.title,
+                src: song
+            })
+        });
+    }
+
+    async updateList()
+    {
+        const directory = "./music/"
+        let songs = glob.sync(directory + '*.mp3')
+        this.constructMusicList(songs)
+        console.log(songs)
     }
 
     async play(){   
@@ -46,7 +67,8 @@ const Player = class {
     }
 
     async pause(){
-        if(this.state == PlayerState.Playing){
+        if(this.state == PlayerState.Playing)
+        {
             this.current.pause();
             this.state = PlayerState.Paused;
         }
@@ -63,27 +85,27 @@ const Player = class {
     }
     
     async prev(){
-        if(this.length == 1)
-            return;
+        if(this.songs.length > 1)
+        {
+            --this.index;
+            if(this.index < 0)
+                this.index = 0;
 
-        --this.index;
-        if(this.index < 0)
-            this.index = 0;
-
-        this.stop();
-        this.play();
+            this.stop();
+            this.play();
+        }
     }
 
     async next(){
-        if(this.length == 1)
-            return;
-        
-        ++this.index;
-        if(this.index >= this.length)
-            this.index = 0;
-        
-        this.stop();
-        this.play();
+        if(this.songs.length > 1)
+        {
+            ++this.index;
+            if(this.index >= this.songs.length)
+                this.index = 0;
+            
+            this.stop();
+            this.play();
+        }
     }
     
     getPlayingSong(){
