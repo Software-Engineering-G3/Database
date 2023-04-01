@@ -79,10 +79,19 @@ mongoose.connect(mongoDB).then(() => { // Connect to mongoDB
 // Define music player:
 const location = "/music/"
 const player = new Player([
-  location + "George Ezra - Green Green Grass.mp3",
-  location + "Blink 182 - What's My Age Again.mp3",
-  location + "Blink 182 - The Rock Show.mp3"
-]);
+  {
+    title: "George Ezra - Green Green Grass",
+    src: location + "george-ezra-green-green-grass.mp3"
+  },
+  {
+    title: "Blink 182 - What's My Age Again",
+    src: location + "blink-182-whats-my-age-again.mp3"
+  },
+  {
+    title: "Blink 182 - The Rock Show",
+    src: location + "blink-182-the-rock-show.mp3"
+  }
+], true);
 
 io.on("connection", (socket) => {
 

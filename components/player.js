@@ -8,14 +8,19 @@ const PlayerState = Object.freeze({
 });
 
 const Player = class {
-    constructor(args){
+    constructor(args, autoPlay = false){
         if(args.length == 0)
             throw new Error("No song was provided in the argument list.");
         this.index = 0;
+        this.autoPlay = autoPlay;
         this.length = args.length;
         this.songs = args;
         this.current = null;
         this.state = PlayerState.Uninitialized;
+
+        console.log("Music Player v 0.0.0.2")
+        console.log("Found: " + this.length + " songs")
+        console.log("Autoplay: " + (this.autoPlay ? "Enabled" : "Disabled") + "\n\n")
     }
 
     async play(){   
@@ -24,12 +29,16 @@ const Player = class {
                 this.state = PlayerState.Playing;
             }
             else {
-                this.current = new Audic(this.songs[this.index]);
+                this.current = new Audic(this.songs[this.index].src);
                 this.state = PlayerState.Playing;
             }
             
             await this.current.play();
-            this.current.addEventListener("ended", () => { this.current.destroy(); });
+            console.log("Now playing: " + this.songs[this.index].title)
+            this.current.addEventListener("ended", () => { 
+               (this.autoPlay ? console.log("Playing next song.") : "");  
+               (this.autoPlay ? this.next() : this.current.destroy()); 
+            });
         } catch (error) {
             console.error(error);
             this.state = PlayerState.Uninitialized;
@@ -37,7 +46,6 @@ const Player = class {
     }
 
     async pause(){
-        //if(this.state == PlayerState.Paused) return;
         if(this.state == PlayerState.Playing){
             this.current.pause();
             this.state = PlayerState.Paused;
@@ -45,10 +53,12 @@ const Player = class {
     }
 
     async stop(){
-        if(this.current == null && this.state == PlayerState.Stopped) return;
-        if(this.state == PlayerState.Playing || this.state == PlayerState.Paused){
-            this.current.destroy();
-            this.state = PlayerState.Stopped;
+        if(this.current != null)
+        {
+            if(this.state == PlayerState.Playing || this.state == PlayerState.Paused){
+                this.current.destroy();
+                this.state = PlayerState.Stopped;
+            }
         }
     }
     
@@ -77,7 +87,7 @@ const Player = class {
     }
     
     getPlayingSong(){
-        return this.current.src;
+        return this.songs[this.index].title;
     }
 };
 
