@@ -159,12 +159,15 @@ const Player = class {
         }
     }
 
-    async changeAutoUpdate()
+    async changeAutoUpdate(autoUpdateValue)
     {
-        this.autoUpdateList = !this.autoUpdateList;
+        if(!(typeof autoUpdateValue === 'boolean'))
+            throw new Error('Type mismatch: expected boolean, got something else.');
+        
+        this.autoUpdateList = autoUpdateValue;
     }
     
-    getPlayingSong()
+    async getPlayingSong()
     {
         return this.songs[this.index].title;
     }
