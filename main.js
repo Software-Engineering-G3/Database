@@ -138,11 +138,11 @@ io.on("connection", (socket) => {
   socket.on("+next song", async () => { player.next(); });
   socket.on("+prev song", async () => { player.prev(); });
   socket.on("+update list", async () => { player.updateList(); });
-  socket.on("+get song", () => { console.log("Playing: " + player.getPlayingSong()); });
-  socket.on("+enable filemon", () => { player.changeAutoUpdate(true); })
-  socket.on("+disable filemon", () => { player.changeAutoUpdate(false); })
-  socket.on("+enable autoplay", () => { player.changeAutoPlay(true); })
-  socket.on("+disable autoplay", () => { player.changeAutoPlay(false); })
+  socket.on("+get song", async () => { console.log("Playing: " + player.getPlayingSong()); });
+  socket.on("+enable filemon", async () => { player.changeAutoUpdate(true); })
+  socket.on("+disable filemon", async () => { player.changeAutoUpdate(false); })
+  socket.on("+enable autoplay", async () => { player.changeAutoPlay(true); })
+  socket.on("+disable autoplay", async () => { player.changeAutoPlay(false); })
 
 
   loop = setInterval(() => {
