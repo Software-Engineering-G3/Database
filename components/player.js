@@ -162,9 +162,17 @@ const Player = class {
     async changeAutoUpdate(autoUpdateValue)
     {
         if(!(typeof autoUpdateValue === 'boolean'))
-            throw new Error('Type mismatch: expected boolean, got something else.');
+            throw new Error('Type mismatch: expected boolean, instead got' + typeof(autoUpdateValue) + '.');
         
         this.autoUpdateList = autoUpdateValue;
+    }
+
+    async changeAutoPlay(autoPlay)
+    {
+        if(!(typeof autoPlay === 'boolean'))
+            throw new Error('Type mismatch: expected boolean, instead got' + typeof(autoPlay) + '.');
+        
+        this.autoPlay = autoPlay;
     }
     
     async getPlayingSong()

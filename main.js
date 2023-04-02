@@ -105,6 +105,8 @@ io.on("connection", (socket) => {
   socket.on("+get song", () => { console.log("Playing: " + player.getPlayingSong()); });
   socket.on("+enable filemon", () => { player.changeAutoUpdate(true); })
   socket.on("+disable filemon", () => { player.changeAutoUpdate(false); })
+  socket.on("+enable autoplay", () => { player.changeAutoPlay(true); })
+  socket.on("+disable autoplay", () => { player.changeAutoPlay(false); })
 
   loop = setInterval(() => {
     const random = Math.floor((Math.random() * 1300) + 1);
