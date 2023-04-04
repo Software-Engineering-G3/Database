@@ -41,8 +41,9 @@ const Player = class {
 
     monitorFolder() 
     {
+        var watcher = null;
         if(this.autoUpdateList) {
-            var watcher = hound.watch(this.defaultDirectory);
+            watcher = hound.watch(this.defaultDirectory);
             
             watcher.on("create", (file) => 
             { 
@@ -65,7 +66,8 @@ const Player = class {
         } 
         else 
         {
-            watcher.clear();
+            if(watcher != null) 
+                watcher.clear();
         }
     }
 
