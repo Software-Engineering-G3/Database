@@ -152,11 +152,13 @@ io.on("connection", (socket) => {
   }, 3000);
 
 
-  // Log every received message
+  // On every received message
   socket.onAny((event, ...message) => {
+
     // Log event for name of event, Log message for event data/message
     console.log(`got ${event}`);
-   
+
+    // Write it to the serial port
     port.write(event+'\n', (err) => {
       if(err){
         return console.log('Error: ', err.message)
