@@ -82,6 +82,7 @@ parser.on("data", (data) => {
 
 port.on("error", (error) => {
   console.error("No Smart Home detected");
+  console.error(error);
 });
 
 
