@@ -14,7 +14,6 @@ import { glob } from "glob"
 
 var loop;
 
-
 const httpsServer = createServer({
   key: readFileSync("key/server-key.pem"),
   cert: readFileSync("key/server-cert.pem")
@@ -52,23 +51,30 @@ port.on("open", () => {
 });
 
 
-parser.on("data", (data) => {
-  const regex = /[?!&-]/
-  if(regex.test(data)){ // If data includes any of the command signs
-    var data = split_command(data)
+parser.on("data", (line) => {
+  const regex = /[?!&-]/g
 
+  console.log("Received (Arduino): " + line);
 
-    const filter = {component: data[0]}
-    const update = {state: data[1]}
- 
-    if(data != 'error'){
-      Status.findOneAndUpdate(filter, update, {
-        new: true
-      }).then((err) => {
-        err.save()
-        console.log("Successful!");
-      })
- 
+  if(regex.test(line)){ // If data includes any of the command signs
+    var data = split_command(line)
+
+    const filter = { component: data[0] };
+    const update = { state: Number(data[1]) };
+
+    console.log("Component:" + filter);
+    console.log("State: " + update);
+
+    if (data != 'error') {
+      Status.findOneAndUpdate(filter, update, { new: true })
+        .then((document) => {
+          document.save()
+          console.log("Successful!");
+        })
+        .catch((err) => {
+          console.error(`Error: ${err}`);
+        });
+  
       new Log({component: data[0], state: data[1] ,feedback: 'Success!'}).save(function(err, doc) {
         if (err) return console.error(err);
         console.log("Document inserted successfully!");
@@ -106,27 +112,40 @@ io.on("connection", (socket) => {
     username: "testuser",
     password: "verysafepassword"
   }
+
+  Status.find().then(result => {
+    socket.emit("Info", result)
+  })
  
   User.findOne({username: testUser.username}).then((user, err) => {
     const result = bcryptjs.compareSync(testUser.password, user.password)
      // console.log(user.password)
     //  console.log(compare)
       if(result){
-        console.log("yay");
+        // Log which and when a client connects
+        console.log("yay")
       }else{
         console.log("bruh")
       }
   })
 
-
-  Status.find().then(result => {
-    socket.emit("Info", result)
+  socket.on("login", (message) => {
+    Status.find().then(result => {
+      socket.emit("Info", result)
+    })
+   
+    User.findOne({username: testUser.username}).then((user, err) => {
+      const result = bcryptjs.compareSync(testUser.password, user.password)
+       // console.log(user.password)
+      //  console.log(compare)
+        if(result){
+          // Log which and when a client connects
+          console.log("yay")
+        }else{
+          console.log("bruh")
+        }
+    })
   })
-
-
-  // Log which and when a client connects
-  console.log("Client connected: " + socket.id);
-
 
   // Log which, when and for what reason a client disconnects
   socket.on("disconnect", (reason) => {
@@ -158,13 +177,14 @@ io.on("connection", (socket) => {
 
     // Log event for name of event, Log message for event data/message
     console.log(`got ${event}`);
-
-    // Write it to the serial port
-    port.write(event+'\n', (err) => {
-      if(err){
-        return console.log('Error: ', err.message)
-      }
-    })
+   
+    if(event.includes("-")){
+      port.write(event+'\n', (err) => {
+        if(err){
+          return console.log('Error: ', err.message)
+        }
+      })
+    }
   });
 });
 
@@ -184,7 +204,7 @@ httpsServer.listen(4121);
 httpServer.listen(4122);
 
 
-io.attach(httpServer) // Weeb :3
+io.attach(httpServer)
 io.attach(httpsServer)
 
 
@@ -194,41 +214,6 @@ function split_command(command) {
 
   var action = commandlist[0].replace(/[?!&-]/, "")
   var state = commandlist[1]
-
-
-  if(action == "il"){
-    action = "Indoor Lamp"
-  }else if(action == 'ol'){
-    action = "Outdoor Lamp"
-  }else if(action == 'bz'){
-    action = "Buzzer"
-  }else if(action == 'dr'){
-    action = "Door"
-  }else if(action == 'fan'){
-    action = "Fan"
-  }else if(action == 're'){
-    action = "Relay"
-  }else if(action == 'wi'){
-    action = "Window"
-  }else{
-    return 'error'
-  }
-
-
-  if(state == '1'){
-    if(state in ['Window', 'Door']){
-      state = 'Open'
-    }else{
-      state = 'On'
-    }
-  }else{
-    if(state in ['Window', 'Door']){
-      state = 'Closed'
-    }else{
-      state = 'Off'
-    }
-  }
-
 
   return [action, state]
 }
