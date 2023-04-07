@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const logSchema = new mongoose.Schema({
-    action:{
+    component:{
         type: String,
         required: true
     },
@@ -15,7 +15,7 @@ const logSchema = new mongoose.Schema({
         required: true
     },
     state:{
-        type: String,
+        type: Number,
         required: true
     }
 })
