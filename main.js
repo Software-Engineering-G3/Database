@@ -110,7 +110,7 @@ mongoose.connect(mongoDB).then(() => { // Connect to mongoDB
 // Define music player:
 const directory = "./music/"
 let songs = glob.sync(directory + '*.mp3')
-const player = new Player(songs, true);
+const player = new Player(songs);
 
 
 io.on("connection", (socket) => {
