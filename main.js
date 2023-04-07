@@ -13,6 +13,7 @@ import bcryptjs from "bcryptjs"
 import { glob } from "glob"
 
 var loop;
+var clients = {}
 
 const httpsServer = createServer({
   key: readFileSync("key/server-key.pem"),
@@ -69,6 +70,11 @@ parser.on("data", (line) => {
       Status.findOneAndUpdate(filter, update, { new: true })
         .then((document) => {
           document.save()
+
+          for(const clientId in clients){
+            clients[clientId].emit('Update', document)
+          }
+
           console.log("Successful!");
         })
         .catch((err) => {
@@ -108,6 +114,8 @@ const player = new Player(songs, true);
 
 
 io.on("connection", (socket) => {
+  clients[socket.id] = socket
+
   const testUser = {
     username: "testuser",
     password: "verysafepassword"
@@ -123,9 +131,9 @@ io.on("connection", (socket) => {
     //  console.log(compare)
       if(result){
         // Log which and when a client connects
-        console.log("yay")
+        //console.log("yay")
       }else{
-        console.log("bruh")
+        //console.log("bruh")
       }
   })
 
@@ -166,10 +174,12 @@ io.on("connection", (socket) => {
 
 
   loop = setInterval(() => {
-    const random = Math.floor((Math.random() * 1300) + 1);
-    // console.log(random);
-    socket.emit("random", random); // Sends random number to client
-  }, 3000);
+    Status.find().then((document) => {
+      socket.emit("Info", document);
+    }).catch((err) => {
+      console.log(err);
+    })
+  }, 5000);
 
 
   // On every received message
@@ -185,12 +195,20 @@ io.on("connection", (socket) => {
         }
       })
     }
+
+    const data = split_command(event)
+
+    Status.find({component: data[0]}).then((document) => {
+      socket.emit("Update", document)
+    })
+
   });
 });
 
 
 io.on("disconnect", (socket) => {
   //no more connection to socket then stop
+  delete clients[socket.id]
   stopStreaming();
 })
 
