@@ -8,12 +8,12 @@
 #### `+stop music`—to stop music in the smart home send this command.
 #### `+next song`—to play next song from the list in the smart home send this command.
 #### `+prev song`—to play previous song from the list in the smart home send this command.
-#### `+get song`—to retrieve current played song in the smart home send this command.
 #### `+update list`—to update the music list in the smart home send this command.
 #### `+enable filemon`—to enable monitoring of `music` folder in the smart home send this command.
 #### `+disable filemon`—to disable monitoring of `music` folder in the smart home send this command.
 #### `+enable autoplay`—to enable autoplay of music in the smart home send this command.
 #### `+disable autoplay`—to disable autoplay of music in the smart home send this command.
+#### `+volume n`—to adjust the volume (with n varying from 0 to 100).
 
 ## JSON "Schema"
 
@@ -71,7 +71,7 @@ Listen to the event "Info" on socket.io
     },
     {
         "component": "player",
-        "state": "play|pause",
+        "state": "playing|paused",
         "title": "Godzilla",
         "artist": "Eminem",
 
