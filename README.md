@@ -74,7 +74,6 @@ Listen to the event "Info" on socket.io
         "state": "playing|paused",
         "title": "Godzilla",
         "artist": "Eminem",
-
         "volume": 0-100
     }
 ]
