@@ -71,9 +71,10 @@ Listen to the event "Info" on socket.io
     },
     {
         "component": "player",
-        "state": "playing|paused",
-        "title": "Godzilla",
-        "artist": "Eminem",
+        "state": "Playing|Paused",
+        "autoplay": true|false,
+        "artist": "Limp Bizkit",
+        "title": "My Way",
         "volume": 0-100
     }
 ]
