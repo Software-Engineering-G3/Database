@@ -87,19 +87,19 @@ export default class Player extends EventTarget {
             watcher.on("create", (file) => 
             { 
                 console.log("New song added: " + file);
-                this.constructMusicList(glob.sync(this.defaultDirectory + this.fileExtension));
+                this._constructMusicList(glob.sync(this.defaultDirectory + this.fileExtension));
             })
 
             watcher.on('change', (file) => 
             {
                 console.log("Song changed: " + file);
-                this.constructMusicList(glob.sync(this.defaultDirectory + this.fileExtension));
+                this._constructMusicList(glob.sync(this.defaultDirectory + this.fileExtension));
             })
 
             watcher.on("delete", (file) => 
             { 
                 console.log("Song deleted: " + file);
-                this.constructMusicList(glob.sync(this.defaultDirectory + this.fileExtension));
+                this._constructMusicList(glob.sync(this.defaultDirectory + this.fileExtension));
             })
             
         } 
@@ -113,7 +113,7 @@ export default class Player extends EventTarget {
     async updateList()
     {
         if(!this.autoUpdateList)
-            this.constructMusicList(glob.sync(this.defaultDirectory + this.fileExtension))
+            this._constructMusicList(glob.sync(this.defaultDirectory + this.fileExtension))
     }
 
     async play()
