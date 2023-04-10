@@ -11,6 +11,8 @@ import { createServer } from "https"
 import { createServer as createhttpServer} from "http"
 import bcryptjs from "bcryptjs"
 import { glob } from "glob"
+import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+dotenv.config()
 
 var loop;
 var clients = {}
@@ -33,8 +35,7 @@ const io = new Server({
 
 
 const port = new SerialPort({
-  path: "COM3",
-  // path: "/dev/ttyUSB0",
+  path: process.env.ARDUINO_PORT || "COM3",
   baudRate: 9600,
   dataBits: 8,
   parity: "none",
@@ -48,7 +49,7 @@ port.open();
 
 
 port.on("open", () => {
-  console.log("Serial Port Opened.");
+  console.log("Serial Port " + port.path + " Opened.");
 });
 
 
