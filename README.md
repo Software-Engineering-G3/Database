@@ -72,12 +72,8 @@ Listen to the event "Info" on socket.io
     {
         "component": "player",
         "state": "play|pause",
-
-        // This:
         "title": "Godzilla",
         "artist": "Eminem",
-        // Or this:
-        "song": "Godzilla - Eminem",
 
         "volume": 0-100
     }
