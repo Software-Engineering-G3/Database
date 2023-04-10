@@ -112,7 +112,6 @@ const directory = "./music/"
 let songs = glob.sync(directory + '*.mp3')
 const player = new Player(songs, true);
 
-
 io.on("connection", (socket) => {
   clients[socket.id] = socket
 
@@ -122,6 +121,8 @@ io.on("connection", (socket) => {
   }
 
   Status.find().then(result => {
+    result.push(player.json()) // Append Player JSON
+    console.log(result)
     socket.emit("Info", result)
   })
  
@@ -160,26 +161,33 @@ io.on("connection", (socket) => {
     console.log("Client disconnected: " + socket.id + ", reason: " + reason);
   });
 
-  socket.on("+play music", async () => { player.play(); });
-  socket.on("+pause music", async () => { player.pause(); });
-  socket.on("+stop music", async () => { player.stop(); });
-  socket.on("+next song", async () => { player.next(); });
-  socket.on("+prev song", async () => { player.prev(); });
+  //player.addEventListener("playing", () => {  })
+  player.addEventListener("paused", () => { socket.emit("Info", player.json()) })
+  //player.addEventListener("stopped", () => { socket.emit("Info", player.json()) })
+  player.addEventListener("playing-next-title", () => { socket.emit("Info", player.json()) })
+  player.addEventListener("playing-prev-title", () => { socket.emit("Info", player.json()) })
+  player.addEventListener("volumechanged", () => { socket.emit("Info", player.json()) })
+
+  socket.on("+play music", async () => { player.play(); socket.emit("Info", player.json()) });
+  socket.on("+pause music", async () => { player.pause() });  
+  socket.on("+stop music", async () => { player.stop() });
+  socket.on("+next song", async () => { player.next() });
+  socket.on("+prev song", async () => { player.prev() });
+  socket.on("+volume", async (volume) => { console.log(`Volume: ${volume}`);  player.changeVolume(volume) })
   socket.on("+update list", async () => { player.updateList(); });
-  socket.on("+get song", async () => { console.log("Playing: " + player.getPlayingSong()); });
   socket.on("+enable filemon", async () => { player.changeAutoUpdate(true); })
   socket.on("+disable filemon", async () => { player.changeAutoUpdate(false); })
   socket.on("+enable autoplay", async () => { player.changeAutoPlay(true); })
   socket.on("+disable autoplay", async () => { player.changeAutoPlay(false); })
 
 
-  loop = setInterval(() => {
+  /* loop = setInterval(() => {
     Status.find().then((document) => {
-      socket.emit("Info", document);
+      //socket.emit("Info", document);
     }).catch((err) => {
       console.log(err);
     })
-  }, 5000);
+  }, 5000); */
 
 
   // On every received message
@@ -199,7 +207,7 @@ io.on("connection", (socket) => {
     const data = split_command(event)
 
     Status.find({component: data[0]}).then((document) => {
-      socket.emit("Update", document)
+        socket.emit("Update", document)
     })
 
   });

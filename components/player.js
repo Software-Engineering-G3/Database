@@ -7,12 +7,13 @@ const PlayerState = Object.freeze({
     Playing: 1,
     Paused: 2,
     Stopped: 0,
-    Uninitialized: -1
+    Destroyed: -1
 });
 
-const Player = class {
+export default class Player extends EventTarget {
     constructor(args, autoPlay = false)
     {
+        super()
         if(args.length == 0)
             throw new Error("No song was provided in the argument list.");
         
@@ -24,11 +25,24 @@ const Player = class {
         this.defaultDirectory = "./music/";
         this.fileExtension = "*.mp3";
         this.autoUpdateList = true;
-        this.constructMusicList(args);
-        this.monitorFolder();
+        this.initialize(args)
     }
 
-    constructMusicList(songFiles) 
+    initialize(args) 
+    {
+        this._constructMusicList(args)
+        this._monitorFolder()
+        this._printModuleHeader
+        this._constructPlayer()
+    }
+
+    _printModuleHeader(){
+        console.log("Music Player v 0.0.0.2")
+        console.log("Found: " + this.songs.length + " songs")
+        console.log("Autoplay: " + (this.autoPlay ? "Enabled" : "Disabled"))
+    }
+
+    _constructMusicList(songFiles) 
     {
         songFiles.forEach(song => {
             const tags = NodeID3.read(song)
@@ -39,7 +53,32 @@ const Player = class {
         });
     }
 
-    monitorFolder() 
+    _constructPlayer()
+    {
+        if (this.current == null) 
+        {
+            this.current = new Audic(this.songs[this.index].src)
+            this.current.addEventListener("pause", () => { this.dispatchEvent(new Event("paused")) })
+            this.current.addEventListener("ended", () => { (this.autoPlay ? this.next() : this.current.destroy()); })
+            this.current.addEventListener("volumechange", () => { this.dispatchEvent(new Event("volumechanged")) })
+            this.state = PlayerState.Paused
+        }
+    }
+
+    _destroyPlayer()
+    {
+        if(this.current != null)
+        {
+            if(this.state == PlayerState.Playing || this.state == PlayerState.Paused)
+            {
+                this.current.destroy()
+                this.current = null
+                this.state = PlayerState.Destroyed
+            }
+        }
+    }
+
+    _monitorFolder() 
     {
         var watcher = null;
         if(this.autoUpdateList) {
@@ -78,39 +117,20 @@ const Player = class {
     }
 
     async play()
-    {   
-        try 
+    {
+        try
         {
-            if(this.state == PlayerState.Uninitialized)
+            if(this.state == PlayerState.Destroyed || this.state == PlayerState.Paused) 
             {
-                console.log("Music Player v 0.0.0.2")
-                console.log("Found: " + this.songs.length + " songs")
-                console.log("Autoplay: " + (this.autoPlay ? "Enabled" : "Disabled"))
+                this._constructPlayer()
+                this.state = PlayerState.Playing
+                await this.current.play()
             }
-
-            if(this.state == PlayerState.Paused) 
-            {
-                this.state = PlayerState.Playing;
-            }
-            else 
-            {
-                this.current = new Audic(this.songs[this.index].src);
-                this.state = PlayerState.Playing;
-            }
-            
-            await this.current.play();
-            console.log("Now playing: " + this.songs[this.index].title)
-            
-            this.current.addEventListener("ended", () => 
-            { 
-               (this.autoPlay ? console.log("Playing next song.") : "");  
-               (this.autoPlay ? this.next() : this.current.destroy()); 
-            });
         } 
         catch (error) 
         {
             console.error(error);
-            this.state = PlayerState.Uninitialized;
+            this.state = PlayerState.Paused;
         }
     }
 
@@ -122,29 +142,21 @@ const Player = class {
             this.state = PlayerState.Paused;
         }
     }
-
-    async stop()
-    {
-        if(this.current != null)
-        {
-            if(this.state == PlayerState.Playing || this.state == PlayerState.Paused)
-            {
-                this.current.destroy();
-                this.state = PlayerState.Stopped;
-            }
-        }
-    }
     
     async prev()
     {
         if(this.songs.length > 1)
         {
-            --this.index;
-            if(this.index < 0)
-                this.index = 0;
-
-            this.stop();
-            this.play();
+            if(this.state == PlayerState.Playing)
+            {
+                --this.index;
+                if(this.index < 0)
+                    this.index = 0
+    
+                this.dispatchEvent(new Event("playing-prev-title"))
+                this._destroyPlayer()
+                this.play()
+            }
         }
     }
 
@@ -152,16 +164,20 @@ const Player = class {
     {
         if(this.songs.length > 1)
         {
-            ++this.index;
-            if(this.index >= this.songs.length)
+            if(this.state == PlayerState.Playing)
+            {
+                ++this.index;
+                if(this.index >= this.songs.length)
                 this.index = 0;
             
-            this.stop();
-            this.play();
+                this.dispatchEvent(new Event("playing-next-title"))
+                this._destroyPlayer()
+                this.play()
+            }
         }
     }
 
-    async changeAutoUpdate(autoUpdateValue)
+    changeAutoUpdate(autoUpdateValue)
     {
         if(!(typeof autoUpdateValue === 'boolean'))
             throw new Error('Type mismatch: expected boolean, instead got' + typeof(autoUpdateValue) + '.');
@@ -169,18 +185,34 @@ const Player = class {
         this.autoUpdateList = autoUpdateValue;
     }
 
-    async changeAutoPlay(autoPlay)
+    changeAutoPlay(autoPlay)
     {
         if(!(typeof autoPlay === 'boolean'))
             throw new Error('Type mismatch: expected boolean, instead got' + typeof(autoPlay) + '.');
         
         this.autoPlay = autoPlay;
     }
+
+    changeVolume(volume)
+    {
+        // Accepts between: 0 - 100
+        this.current.volume = parseFloat(volume)/100
+    }
     
-    async getPlayingSong()
+    getPlayingSong()
     {
         return this.songs[this.index].title;
     }
-};
 
-export default Player;
+    json() {
+        const tags = NodeID3.read(this.songs[this.index].src)
+        return {
+            "component": "player",
+            "state": Object.keys(PlayerState).find(k => PlayerState[k] === this.state),
+            "autoplay": (this.autoPlay ? true : false),
+            "artist": tags.artist,
+            "title": tags.title,
+            "volume": this.current.volume * 100
+        }
+    }
+};
