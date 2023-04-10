@@ -192,7 +192,7 @@ io.on("connection", (socket) => {
   socket.onAny((event, ...message) => {
 
     // Log event for name of event, Log message for event data/message
-    console.log(`got ${event}`);
+    console.log(`Got event: ${event}, with message: ${message}`);
    
     if(event.includes("-")){
       port.write(event+'\n', (err) => {
