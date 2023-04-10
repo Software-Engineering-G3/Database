@@ -70,7 +70,7 @@ parser.on("data", (line) => {
       Status.findOneAndUpdate(filter, update, { new: true })
         .then((document) => {
           for(const clientId in clients){
-            clients[clientId].emit('Info', document)
+            clients[clientId].emit('Info', [document])
           }
 
           document.save()
@@ -161,12 +161,12 @@ io.on("connection", (socket) => {
     console.log("Client disconnected: " + socket.id + ", reason: " + reason);
   });
 
-  player.addEventListener("paused", () => { socket.emit("Info", player.json()) })
-  player.addEventListener("playing-next-title", () => { socket.emit("Info", player.json()) })
-  player.addEventListener("playing-prev-title", () => { socket.emit("Info", player.json()) })
-  player.addEventListener("volumechanged", () => { socket.emit("Info", player.json()) })
+  player.addEventListener("paused", () => { socket.emit("Info", [].concat(player.json())) })
+  player.addEventListener("playing-next-title", () => { socket.emit("Info", [].concat(player.json())) })
+  player.addEventListener("playing-prev-title", () => { socket.emit("Info", [].concat(player.json())) })
+  player.addEventListener("volumechanged", () => { socket.emit("Info", [].concat(player.json())) })
 
-  socket.on("+play music", async () => { player.play(); socket.emit("Info", player.json()) });
+  socket.on("+play music", async () => { player.play(); socket.emit("Info", [].concat(player.json())) });
   socket.on("+pause music", async () => { player.pause() });  
   socket.on("+stop music", async () => { player.stop() });
   socket.on("+next song", async () => { player.next() });
