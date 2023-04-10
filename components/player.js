@@ -212,7 +212,7 @@ export default class Player extends EventTarget {
             "autoplay": (this.autoPlay ? true : false),
             "artist": tags.artist,
             "title": tags.title,
-            "volume": this.current.volume * 100
+            "volume": Math.round(this.current.volume * 100)
         }
     }
 };
