@@ -14,3 +14,72 @@
 #### `+disable filemon`—to disable monitoring of `music` folder in the smart home send this command.
 #### `+enable autoplay`—to enable autoplay of music in the smart home send this command.
 #### `+disable autoplay`—to disable autoplay of music in the smart home send this command.
+
+## JSON "Schema"
+
+Listen to the event "Info" on socket.io
+
+```json
+[
+    {
+        "component": "dr",
+        "state": 0|1
+    },
+    {
+        "component": "wi",
+        "state": 0|1
+    },
+    {
+        "component": "bz",
+        "state": 0|1
+    },
+    {
+        "component": "fan",
+        "state": 0|100-255
+    },
+    {
+        "component": "il",
+        "state": 0-255
+    },
+    {
+        "component": "ol",
+        "state": 0|1
+    },
+    {
+        "component": "re",
+        "state": 0|1
+    },
+    {
+        "component": "light",
+        "state": 0|1023
+    },
+    {
+        "component": "gas",
+        "state": 0|1023
+    },
+    {
+        "component": "mot",
+        "state": 0|1023
+    },
+    {
+        "component": "soil",
+        "state": 0|1023
+    },
+    {
+        "component": "steam",
+        "state": 0|1023
+    },
+    {
+        "component": "player",
+        "state": "play|pause",
+
+        // This:
+        "title": "Godzilla",
+        "artist": "Eminem",
+        // Or this:
+        "song": "Godzilla - Eminem",
+
+        "volume": 0-100
+    }
+]
+```
