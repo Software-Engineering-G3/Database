@@ -69,11 +69,11 @@ parser.on("data", (line) => {
     if (data != 'error') {
       Status.findOneAndUpdate(filter, update, { new: true })
         .then((document) => {
-          document.save()
-
           for(const clientId in clients){
-            clients[clientId].emit('Update', document)
+            clients[clientId].emit('Info', document)
           }
+
+          document.save()
 
           console.log("Successful!");
         })
@@ -110,7 +110,7 @@ mongoose.connect(mongoDB).then(() => { // Connect to mongoDB
 // Define music player:
 const directory = "./music/"
 let songs = glob.sync(directory + '*.mp3')
-const player = new Player(songs);
+const player = new Player(songs, true);
 
 
 io.on("connection", (socket) => {
