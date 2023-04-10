@@ -161,9 +161,7 @@ io.on("connection", (socket) => {
     console.log("Client disconnected: " + socket.id + ", reason: " + reason);
   });
 
-  //player.addEventListener("playing", () => {  })
   player.addEventListener("paused", () => { socket.emit("Info", player.json()) })
-  //player.addEventListener("stopped", () => { socket.emit("Info", player.json()) })
   player.addEventListener("playing-next-title", () => { socket.emit("Info", player.json()) })
   player.addEventListener("playing-prev-title", () => { socket.emit("Info", player.json()) })
   player.addEventListener("volumechanged", () => { socket.emit("Info", player.json()) })
