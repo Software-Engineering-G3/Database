@@ -13,7 +13,7 @@
 #### `+disable filemon`—to disable monitoring of `music` folder in the smart home send this command.
 #### `+enable autoplay`—to enable autoplay of music in the smart home send this command.
 #### `+disable autoplay`—to disable autoplay of music in the smart home send this command.
-#### `+volume n`—to adjust the volume (with n varying from 0 to 100).
+#### `+volume n`—to adjust the volume (with n varying from 0 to 100). IMPORTANT n must be sent as plain text in the message field, it is not part of the event name!
 
 ## JSON "Schema"
 
