@@ -14,7 +14,6 @@ import { glob } from "glob"
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 dotenv.config()
 
-var loop;
 var clients = {}
 
 const httpsServer = createServer({
@@ -194,16 +193,6 @@ io.on("connection", (socket) => {
   socket.on("+enable autoplay", async () => { player.changeAutoPlay(true); })
   socket.on("+disable autoplay", async () => { player.changeAutoPlay(false); })
 
-
-  loop = setInterval(() => {
-    Status.find().then((document) => {
-      socket.emit("Info", [document]);
-    }).catch((err) => {
-      console.log(err);
-    })
-  }, 6000);
-
-
   // On every received message
   socket.onAny((event, ...message) => {
 
@@ -233,12 +222,6 @@ io.on("disconnect", (socket) => {
   delete clients[socket.id]
   stopStreaming();
 })
-
-
-function stopStreaming() {
-  clearInterval(loop);
-}
-
 
 httpsServer.listen(4121);
 httpServer.listen(4122);
