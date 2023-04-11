@@ -40,12 +40,12 @@ const port = new SerialPort({
   dataBits: 8,
   parity: "none",
   stopBits: 1,
+  lock: true,
 });
 
 
 //parse
 const parser = port.pipe(new ReadlineParser());
-port.open();
 
 
 port.on("open", () => {
