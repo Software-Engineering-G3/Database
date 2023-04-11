@@ -41,17 +41,38 @@ const port = new SerialPort({
   parity: "none",
   stopBits: 1,
   lock: true,
+  autoOpen: false
 });
 
+let ArduinoConnected = false;
+port.open();
 
 //parse
 const parser = port.pipe(new ReadlineParser());
 
 
 port.on("open", () => {
+  ArduinoConnected = true;
   console.log("Serial Port " + port.path + " Opened.");
 });
 
+port.on("error", (error) => {
+  console.error("No Smart Home detected");
+  console.error(error);
+  setTimeout(reconnect, 5000);
+});
+
+port.on("close", () => {
+  ArduinoConnected = false;
+  console.log("Serial Port " + port.path + " Closed.");
+  setTimeout(reconnect, 5000);
+});
+
+function reconnect() {
+  if (!ArduinoConnected) {
+    port.open();
+  }
+}
 
 parser.on("data", (line) => {
   const regex = /[?!&-]/g
@@ -91,12 +112,6 @@ parser.on("data", (line) => {
    }
   }
 })
-
-
-port.on("error", (error) => {
-  console.error("No Smart Home detected");
-  console.error(error);
-});
 
 
 const mongoDB = 'mongodb+srv://hpmanen0:lolxd@seproject-group3.fdnfesb.mongodb.net/?retryWrites=true&w=majority';
