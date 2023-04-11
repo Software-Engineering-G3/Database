@@ -187,7 +187,7 @@ io.on("connection", (socket) => {
   socket.on("+stop music", async () => { player.stop() });
   socket.on("+next song", async () => { player.next() });
   socket.on("+prev song", async () => { player.prev() });
-  socket.on("+volume", async (volume) => { console.log(`Volume: ${volume}`);  player.changeVolume(volume) })
+  socket.on("+volume", async (volume) => { player.changeVolume(volume) })
   socket.on("+update list", async () => { player.updateList(); });
   socket.on("+enable filemon", async () => { player.changeAutoUpdate(true); })
   socket.on("+disable filemon", async () => { player.changeAutoUpdate(false); })
@@ -195,13 +195,13 @@ io.on("connection", (socket) => {
   socket.on("+disable autoplay", async () => { player.changeAutoPlay(false); })
 
 
-  /* loop = setInterval(() => {
+  loop = setInterval(() => {
     Status.find().then((document) => {
-      //socket.emit("Info", document);
+      socket.emit("Info", [document]);
     }).catch((err) => {
       console.log(err);
     })
-  }, 5000); */
+  }, 6000);
 
 
   // On every received message

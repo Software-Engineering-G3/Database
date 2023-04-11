@@ -72,7 +72,7 @@ Listen to the event "Info" on socket.io
     {
         "component": "player",
         "state": "Playing|Paused",
-        "autoplay": true|false,
+        "autoplay": "true|false",
         "artist": "Limp Bizkit",
         "title": "My Way",
         "volume": 0-100
