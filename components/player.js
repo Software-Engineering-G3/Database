@@ -5,8 +5,7 @@ import hound from 'hound';
 
 const PlayerState = Object.freeze({
     Playing: 1,
-    Paused: 2,
-    Stopped: 0,
+    Paused: 0,
     Destroyed: -1
 });
 
@@ -151,7 +150,7 @@ export default class Player extends EventTarget {
             {
                 --this.index;
                 if(this.index < 0)
-                    this.index = 0
+                    this.index = this.songs.length - 1
     
                 this.dispatchEvent(new Event("playing-prev-title"))
                 this._destroyPlayer()
