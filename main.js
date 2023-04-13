@@ -35,7 +35,7 @@ const io = new Server({
 
 const port = new SerialPort({
   path: process.env.ARDUINO_PORT || "COM3",
-  baudRate: 9600,
+  baudRate: Number(process.env.BAUD_RATE) || 9600,
   dataBits: 8,
   parity: "none",
   stopBits: 1,
@@ -52,7 +52,7 @@ const parser = port.pipe(new ReadlineParser());
 
 port.on("open", () => {
   ArduinoConnected = true;
-  console.log("Serial Port " + port.path + " Opened.");
+  console.log("Serial Port Opened, path: " + port.path + ", baudRate: " + port.baudRate);
 });
 
 port.on("error", (error) => {
@@ -63,7 +63,7 @@ port.on("error", (error) => {
 
 port.on("close", () => {
   ArduinoConnected = false;
-  console.log("Serial Port " + port.path + " Closed.");
+  console.log("Serial Port Closed, path: " + port.path + ", baudRate: " + port.baudRate);
   setTimeout(reconnect, 5000);
 });
 
