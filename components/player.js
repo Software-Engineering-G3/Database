@@ -142,36 +142,40 @@ export default class Player extends EventTarget {
         }
     }
     
-    async prev()
-    {
-        if(this.songs.length > 1)
-        {
-            if(this.state == PlayerState.Playing)
-            {
-                --this.index;
-                if(this.index < 0)
-                    this.index = this.songs.length - 1
+    async prev() {
+        if (this.songs.length > 1) {
+            --this.index;
+            if (this.index < 0) {
+                this.index = this.songs.length - 1;
+            }
     
-                this.dispatchEvent(new Event("playing-prev-title"))
-                this._destroyPlayer()
-                this.play()
+            this.dispatchEvent(new Event("playing-prev-title"));
+    
+            if (this.state == PlayerState.Playing) {
+                this._destroyPlayer();
+                this.play();
+            } else if (this.state == PlayerState.Paused) {
+                this._destroyPlayer();
+                this._constructPlayer();
             }
         }
     }
 
-    async next()
-    {
-        if(this.songs.length > 1)
-        {
-            if(this.state == PlayerState.Playing)
-            {
-                ++this.index;
-                if(this.index >= this.songs.length)
+    async next() {
+        if (this.songs.length > 1) {
+            ++this.index;
+            if (this.index >= this.songs.length) {
                 this.index = 0;
-            
-                this.dispatchEvent(new Event("playing-next-title"))
-                this._destroyPlayer()
-                this.play()
+            }
+    
+            this.dispatchEvent(new Event("playing-next-title"));
+    
+            if (this.state == PlayerState.Playing) {
+                this._destroyPlayer();
+                this.play();
+            } else if (this.state == PlayerState.Paused) {
+                this._destroyPlayer();
+                this._constructPlayer();
             }
         }
     }
