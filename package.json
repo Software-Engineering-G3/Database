@@ -7,12 +7,15 @@
   "scripts": {
     "start": "node main.js",
     "dev": "nodemon main.js",
-    "test": "nodemon test.js"
+    "test": "nodemon test.js",
+    "authtest": "nodemon authtest.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "audic": "^3.0.1",
+    "auth0": "^3.3.0",
+    "auth0-socketio": "^1.1.1",
     "bcryptjs": "2.4.3",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
@@ -20,10 +23,15 @@
     "glob": "^9.3.2",
     "hound": "^1.0.5",
     "https": "^1.0.0",
+    "jsonwebtoken": "^9.0.0",
+    "md5": "^2.3.0",
     "mongoose": "^6.10.0",
     "node-id3": "^0.2.6",
     "nodemon": "^2.0.20",
     "serialport": "^10.5.0",
-    "socket.io": "^4.6.0"
+    "socket.io": "^4.6.0",
+    "socket.io-client": "^4.6.1",
+    "socketio-auth": "^0.1.1",
+    "socketio-jwt-auth": "^0.2.1"
   }
 }

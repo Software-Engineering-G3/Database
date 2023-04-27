@@ -1,4 +1,5 @@
 import { Server } from "socket.io"
+import jwtAuth from 'socketio-jwt-auth'
 import mongoose from "mongoose"
 import { SerialPort } from 'serialport'
 import { ReadlineParser } from "@serialport/parser-readline"
@@ -11,7 +12,10 @@ import { createServer } from "https"
 import { createServer as createhttpServer} from "http"
 import bcryptjs from "bcryptjs"
 import { glob } from "glob"
+import pkg from 'md5';
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+import jwt from 'jsonwebtoken'
+
 dotenv.config()
 
 var clients = {}
@@ -20,7 +24,6 @@ const httpsServer = createServer({
   key: readFileSync("key/server-key.pem"),
   cert: readFileSync("key/server-cert.pem")
 });
-
 
 const httpServer = createhttpServer({})
 
@@ -32,6 +35,18 @@ const io = new Server({
   }
 });
 
+//const withAuthorization = auth0Middleware('dev-zjoski2ed4a7qjp3.us.auth0.com/');
+io.use((socket, next) => {
+  const token = socket.handshake.query.token
+
+  try{
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    socket.userId = decoded.userId
+    next()
+  }catch(err){
+    console.log('Invalid Token received');
+  }
+});
 
 const port = new SerialPort({
   path: process.env.ARDUINO_PORT || "COM3",
@@ -58,7 +73,7 @@ port.on("open", () => {
 port.on("error", (error) => {
   console.error("No Smart Home detected");
   console.error(error);
-  setTimeout(reconnect, 5000);
+  //setTimeout(reconnect, 5000);
 });
 
 port.on("close", () => {
@@ -117,7 +132,7 @@ const mongoDB = 'mongodb+srv://hpmanen0:lolxd@seproject-group3.fdnfesb.mongodb.n
 mongoose.set("strictQuery", false);
 
 
-mongoose.connect(mongoDB).then(() => { // Connect to mongoDB
+mongoose.connect(mongoDB).then(() => {
   console.log("MongoDB connected");
 }).catch(err => console.log(err));
 
@@ -127,47 +142,55 @@ const directory = "./music/"
 let songs = glob.sync(directory + '*.mp3')
 const player = new Player(songs, true);
 
+/*User.findOne({username: username}).then((user, err) => {
+  const result = bcryptjs.compareSync(password, user.password)
+  // console.log(user.password)
+  //  console.log(compare)
+  if(err || !user) return callback(new Error("User not found"))
+  return callback(null, result)
+});*/
+
+const secretKey = process.env.JWT_SECRET
+var hashsecretKey = pkg(secretKey); // pkg = md5
+
+io.use(jwtAuth.authenticate({
+  secret: secretKey,    // required, used to verify the token's signature
+  algorithm: 'HS256',        // optional, default to be HS256
+  succeedWithoutToken: true
+}, function(payload, done) {
+  console.log(payload);
+  // done is a callback, you can use it as follows
+  if (payload && payload.username) {
+    User.findOne({id: payload.username}, function(err, user) {
+      if (err) {
+        // return error
+        return done(err);
+      }
+      if (!user) {
+        // return fail with an error message
+        return done(null, false, 'user does not exist');
+      }
+      // return success with a user info
+      return done(null, user);
+    });
+  } else {
+    return done() // in your connection handler user.logged_in will be false
+  }
+
+}));
+
 io.on("connection", (socket) => {
   clients[socket.id] = socket
-
-  const testUser = {
-    username: "testuser",
-    password: "verysafepassword"
-  }
 
   Status.find().then(result => {
     result.push(player.json()) // Append Player JSON
     console.log(result)
     socket.emit("Info", result)
   })
- 
-  User.findOne({username: testUser.username}).then((user, err) => {
-    const result = bcryptjs.compareSync(testUser.password, user.password)
-     // console.log(user.password)
-    //  console.log(compare)
-      if(result){
-        // Log which and when a client connects
-        //console.log("yay")
-      }else{
-        //console.log("bruh")
-      }
-  })
 
   socket.on("login", (message) => {
     Status.find().then(result => {
       socket.emit("Info", result)
-    })
-   
-    User.findOne({username: testUser.username}).then((user, err) => {
-      const result = bcryptjs.compareSync(testUser.password, user.password)
-       // console.log(user.password)
-      //  console.log(compare)
-        if(result){
-          // Log which and when a client connects
-          console.log("yay")
-        }else{
-          console.log("bruh")
-        }
     })
   })
 
@@ -206,13 +229,6 @@ io.on("connection", (socket) => {
         }
       })
     }
-
-    const data = split_command(event)
-
-    Status.find({component: data[0]}).then((document) => {
-        socket.emit("Update", document)
-    })
-
   });
 });
 
