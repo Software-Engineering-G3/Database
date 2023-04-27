@@ -239,7 +239,7 @@ io.on("disconnect", (socket) => {
   stopStreaming();
 })
 
-//httpsServer.listen(4121);
+httpsServer.listen(4121);
 httpServer.listen(4122);
 
 
