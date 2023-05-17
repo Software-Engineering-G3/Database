@@ -10,9 +10,7 @@ import Status from "./models/status.js"
 import { readFileSync } from "fs"
 import { createServer } from "https"
 import { createServer as createhttpServer} from "http"
-import bcryptjs from "bcryptjs"
 import { glob } from "glob"
-import pkg from 'md5';
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 import jwt from 'jsonwebtoken'
 
@@ -151,7 +149,6 @@ const player = new Player(songs, true);
 });*/
 
 const secretKey = process.env.JWT_SECRET
-var hashsecretKey = pkg(secretKey); // pkg = md5
 
 io.use(jwtAuth.authenticate({
   secret: secretKey,    // required, used to verify the token's signature
