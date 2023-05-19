@@ -1,18 +1,15 @@
 import { Server } from "socket.io"
-import jwtAuth from 'socketio-jwt-auth'
 import mongoose from "mongoose"
 import { SerialPort } from 'serialport'
 import { ReadlineParser } from "@serialport/parser-readline"
 import Log from "./models/log.js"
 import Player from "./components/player.js"
-import User from "./models/user.js"
 import Status from "./models/status.js"
 import { readFileSync } from "fs"
 import { createServer } from "https"
 import { createServer as createhttpServer} from "http"
 import { glob } from "glob"
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
-import jwt from 'jsonwebtoken'
 
 dotenv.config()
 
@@ -30,19 +27,6 @@ const httpServer = createhttpServer({})
 const io = new Server({
   cors: {
     origin: '*'
-  }
-});
-
-//const withAuthorization = auth0Middleware('dev-zjoski2ed4a7qjp3.us.auth0.com/');
-io.use((socket, next) => {
-  const token = socket.handshake.query.token
-
-  try{
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    socket.userId = decoded.userId
-    next()
-  }catch(err){
-    console.log('Invalid Token received');
   }
 });
 
@@ -139,42 +123,6 @@ mongoose.connect(mongoDB).then(() => {
 const directory = "./music/"
 let songs = glob.sync(directory + '*.mp3')
 const player = new Player(songs, true);
-
-/*User.findOne({username: username}).then((user, err) => {
-  const result = bcryptjs.compareSync(password, user.password)
-  // console.log(user.password)
-  //  console.log(compare)
-  if(err || !user) return callback(new Error("User not found"))
-  return callback(null, result)
-});*/
-
-const secretKey = process.env.JWT_SECRET
-
-io.use(jwtAuth.authenticate({
-  secret: secretKey,    // required, used to verify the token's signature
-  algorithm: 'HS256',        // optional, default to be HS256
-  succeedWithoutToken: true
-}, function(payload, done) {
-  console.log(payload);
-  // done is a callback, you can use it as follows
-  if (payload && payload.username) {
-    User.findOne({id: payload.username}, function(err, user) {
-      if (err) {
-        // return error
-        return done(err);
-      }
-      if (!user) {
-        // return fail with an error message
-        return done(null, false, 'user does not exist');
-      }
-      // return success with a user info
-      return done(null, user);
-    });
-  } else {
-    return done() // in your connection handler user.logged_in will be false
-  }
-
-}));
 
 io.on("connection", (socket) => {
   clients[socket.id] = socket
