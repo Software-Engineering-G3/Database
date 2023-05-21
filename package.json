@@ -29,13 +29,9 @@
     "node-id3": "^0.2.6",
     "nodemon": "^2.0.20",
     "serialport": "^10.5.0",
-<<<<<<< HEAD
-    "socket.io": "^4.6.1"
-=======
     "socket.io": "^4.6.0",
     "socket.io-client": "^4.6.1",
     "socketio-auth": "^0.1.1",
     "socketio-jwt-auth": "^0.2.1"
->>>>>>> 6a3a433689312ba43a638cb537e52134f2850b8e
   }
 }
