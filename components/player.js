@@ -54,11 +54,15 @@ export default class Player extends EventTarget {
 
     _constructPlayer()
     {
-        if (this.current == null) 
+        if (this.current == null)
         {
             this.current = new Audic(this.songs[this.index].src)
             this.current.addEventListener("pause", () => { this.dispatchEvent(new Event("paused")) })
-            this.current.addEventListener("ended", () => { (this.autoPlay ? this.next() : this.current.destroy()); })
+            this.current.addEventListener("ended", () => {
+                if (this.current.currentTime === this.current.duration) {
+                    this.autoPlay ? this.next() : this.current.destroy();
+                }
+            })
             this.current.addEventListener("volumechange", () => { this.dispatchEvent(new Event("volumechanged")) })
             this.state = PlayerState.Paused
         }

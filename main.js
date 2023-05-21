@@ -4,14 +4,13 @@ import { SerialPort } from 'serialport'
 import { ReadlineParser } from "@serialport/parser-readline"
 import Log from "./models/log.js"
 import Player from "./components/player.js"
-import User from "./models/user.js"
 import Status from "./models/status.js"
 import { readFileSync } from "fs"
 import { createServer } from "https"
 import { createServer as createhttpServer} from "http"
-import bcryptjs from "bcryptjs"
 import { glob } from "glob"
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+
 dotenv.config()
 
 var clients = {}
@@ -20,7 +19,6 @@ const httpsServer = createServer({
   key: readFileSync("key/server-key.pem"),
   cert: readFileSync("key/server-cert.pem")
 });
-
 
 const httpServer = createhttpServer({})
 
@@ -31,7 +29,6 @@ const io = new Server({
     origin: '*'
   }
 });
-
 
 const port = new SerialPort({
   path: process.env.ARDUINO_PORT || "COM3",
@@ -58,7 +55,7 @@ port.on("open", () => {
 port.on("error", (error) => {
   console.error("No Smart Home detected");
   console.error(error);
-  setTimeout(reconnect, 5000);
+  //setTimeout(reconnect, 5000);
 });
 
 port.on("close", () => {
@@ -117,7 +114,7 @@ const mongoDB = 'mongodb+srv://hpmanen0:lolxd@seproject-group3.fdnfesb.mongodb.n
 mongoose.set("strictQuery", false);
 
 
-mongoose.connect(mongoDB).then(() => { // Connect to mongoDB
+mongoose.connect(mongoDB).then(() => {
   console.log("MongoDB connected");
 }).catch(err => console.log(err));
 
@@ -130,44 +127,15 @@ const player = new Player(songs, true);
 io.on("connection", (socket) => {
   clients[socket.id] = socket
 
-  const testUser = {
-    username: "testuser",
-    password: "verysafepassword"
-  }
-
   Status.find().then(result => {
     result.push(player.json()) // Append Player JSON
     console.log(result)
     socket.emit("Info", result)
   })
- 
-  User.findOne({username: testUser.username}).then((user, err) => {
-    const result = bcryptjs.compareSync(testUser.password, user.password)
-     // console.log(user.password)
-    //  console.log(compare)
-      if(result){
-        // Log which and when a client connects
-        //console.log("yay")
-      }else{
-        //console.log("bruh")
-      }
-  })
 
   socket.on("login", (message) => {
     Status.find().then(result => {
       socket.emit("Info", result)
-    })
-   
-    User.findOne({username: testUser.username}).then((user, err) => {
-      const result = bcryptjs.compareSync(testUser.password, user.password)
-       // console.log(user.password)
-      //  console.log(compare)
-        if(result){
-          // Log which and when a client connects
-          console.log("yay")
-        }else{
-          console.log("bruh")
-        }
     })
   })
 
@@ -206,13 +174,6 @@ io.on("connection", (socket) => {
         }
       })
     }
-
-    const data = split_command(event)
-
-    Status.find({component: data[0]}).then((document) => {
-        socket.emit("Update", document)
-    })
-
   });
 });
 
@@ -223,7 +184,7 @@ io.on("disconnect", (socket) => {
   stopStreaming();
 })
 
-//httpsServer.listen(4121);
+httpsServer.listen(4121);
 httpServer.listen(4122);
 
 
