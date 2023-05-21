@@ -54,15 +54,11 @@ export default class Player extends EventTarget {
 
     _constructPlayer()
     {
-        if (this.current == null)
+        if (this.current == null) 
         {
             this.current = new Audic(this.songs[this.index].src)
             this.current.addEventListener("pause", () => { this.dispatchEvent(new Event("paused")) })
-            this.current.addEventListener("ended", () => {
-                if (this.current.currentTime === this.current.duration) {
-                    this.autoPlay ? this.next() : this.current.destroy();
-                }
-            })
+            this.current.addEventListener("ended", () => { (this.autoPlay ? this.next() : this.current.destroy()); })
             this.current.addEventListener("volumechange", () => { this.dispatchEvent(new Event("volumechanged")) })
             this.state = PlayerState.Paused
         }
@@ -146,41 +142,33 @@ export default class Player extends EventTarget {
         }
     }
     
-    async prev() {
-        if (this.songs.length > 1) {
+    async prev()
+    {
+        if(this.songs.length > 1)
+        {
+            // All that was required as removing this line: if(this.state == PlayerState.Playing)
             --this.index;
-            if (this.index < 0) {
-                this.index = this.songs.length - 1;
-            }
-    
-            this.dispatchEvent(new Event("playing-prev-title"));
-    
-            if (this.state == PlayerState.Playing) {
-                this._destroyPlayer();
-                this.play();
-            } else if (this.state == PlayerState.Paused) {
-                this._destroyPlayer();
-                this._constructPlayer();
-            }
+            if(this.index < 0)
+                this.index = this.songs.length - 1
+
+            this.dispatchEvent(new Event("playing-prev-title"))
+            this._destroyPlayer()
+            this.play()
         }
     }
 
-    async next() {
-        if (this.songs.length > 1) {
+    async next()
+    {
+        if(this.songs.length > 1)
+        {
+            // All that was required as removing this line: if(this.state == PlayerState.Playing)
             ++this.index;
-            if (this.index >= this.songs.length) {
-                this.index = 0;
-            }
-    
-            this.dispatchEvent(new Event("playing-next-title"));
-    
-            if (this.state == PlayerState.Playing) {
-                this._destroyPlayer();
-                this.play();
-            } else if (this.state == PlayerState.Paused) {
-                this._destroyPlayer();
-                this._constructPlayer();
-            }
+            if(this.index >= this.songs.length)
+            this.index = 0;
+
+            this.dispatchEvent(new Event("playing-next-title"))
+            this._destroyPlayer()
+            this.play()
         }
     }
 
