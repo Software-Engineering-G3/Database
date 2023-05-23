@@ -36,7 +36,6 @@ export default class Player extends EventTarget {
     }
 
     _printModuleHeader(){
-        console.log("Music Player v 0.0.0.2")
         console.log("Found: " + this.songs.length + " songs")
         console.log("Autoplay: " + (this.autoPlay ? "Enabled" : "Disabled"))
     }
