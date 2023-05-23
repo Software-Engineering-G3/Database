@@ -146,14 +146,16 @@ export default class Player extends EventTarget {
     {
         if(this.songs.length > 1)
         {
-            // All that was required as removing this line: if(this.state == PlayerState.Playing)
-            --this.index;
-            if(this.index < 0)
-                this.index = this.songs.length - 1
-
-            this.dispatchEvent(new Event("playing-prev-title"))
-            this._destroyPlayer()
-            this.play()
+            if(this.state == PlayerState.Playing || this.state == PlayerState.Paused)
+            {
+                --this.index;
+                if(this.index < 0)
+                    this.index = this.songs.length - 1
+    
+                this.dispatchEvent(new Event("playing-prev-title"))
+                this._destroyPlayer()
+                this.play()
+            }
         }
     }
 
@@ -161,14 +163,16 @@ export default class Player extends EventTarget {
     {
         if(this.songs.length > 1)
         {
-            // All that was required as removing this line: if(this.state == PlayerState.Playing)
-            ++this.index;
-            if(this.index >= this.songs.length)
-            this.index = 0;
-
-            this.dispatchEvent(new Event("playing-next-title"))
-            this._destroyPlayer()
-            this.play()
+            if(this.state == PlayerState.Playing || this.state == PlayerState.Paused)
+            {
+                ++this.index;
+                if(this.index >= this.songs.length)
+                this.index = 0;
+            
+                this.dispatchEvent(new Event("playing-next-title"))
+                this._destroyPlayer()
+                this.play()
+            }
         }
     }
 
