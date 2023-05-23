@@ -32,7 +32,7 @@ const io = new Server({
 
 const port = new SerialPort({
   path: process.env.ARDUINO_PORT || "COM3",
-  baudRate: Number(process.env.BAUD_RATE) || 9600,
+  baudRate: Number(process.env.BAUD_RATE) || 11520,
   dataBits: 8,
   parity: "none",
   stopBits: 1,
