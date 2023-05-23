@@ -73,7 +73,7 @@ function reconnect() {
 parser.on("data", (line) => {
   const regex = /[?!&-]/g
 
-  console.log("Received (Arduino): " + line);
+  //console.log("Received (Arduino): " + line);
 
   if(regex.test(line)){ // If data includes any of the command signs
     var data = split_command(line)
@@ -81,8 +81,8 @@ parser.on("data", (line) => {
     const filter = { component: data[0] };
     const update = { state: Number(data[1]) };
 
-    console.log("Component:" + filter);
-    console.log("State: " + update);
+    // console.log("Component:" + filter);
+    // console.log("State: " + update);
 
     if (data != 'error') {
       Status.findOneAndUpdate(filter, update, { new: true })
@@ -93,7 +93,7 @@ parser.on("data", (line) => {
 
           document.save()
 
-          console.log("Successful!");
+          // console.log("Successful!");
         })
         .catch((err) => {
           console.error(`Error: ${err}`);
@@ -101,7 +101,7 @@ parser.on("data", (line) => {
   
       new Log({component: data[0], state: data[1] ,feedback: 'Success!'}).save(function(err, doc) {
         if (err) return console.error(err);
-        console.log("Document inserted successfully!");
+        // console.log("Document inserted successfully!");
       });
    }else{
       console.log("Received invalid value");
