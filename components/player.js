@@ -221,13 +221,24 @@ export default class Player extends EventTarget {
 
     json() {
         const tags = NodeID3.read(this.songs[this.index].src)
+        if (this.current != null){
+            return {
+                "component": "player",
+                "state": Object.keys(PlayerState).find(k => PlayerState[k] === this.state),
+                "autoplay": (this.autoPlay ? true : false),
+                "artist": tags.artist,
+                "title": tags.title,
+                "volume": Math.round(this.current.volume * 100)
+            }
+    }else{
         return {
             "component": "player",
             "state": Object.keys(PlayerState).find(k => PlayerState[k] === this.state),
             "autoplay": (this.autoPlay ? true : false),
             "artist": tags.artist,
             "title": tags.title,
-            "volume": Math.round(this.current.volume * 100)
+            "volume": Math.round(1 * 100)
         }
+    }
     }
 };

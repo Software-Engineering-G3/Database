@@ -139,7 +139,7 @@ io.on("connection", (socket) => {
     })
   })
 
-  emitPlayerInfo = () => {
+  function emitPlayerInfo(){
     for(const clientId in clients){
       clients[clientId].emit("Info", [].concat(player.json()))
     }
