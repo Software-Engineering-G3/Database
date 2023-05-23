@@ -139,41 +139,28 @@ io.on("connection", (socket) => {
     })
   })
 
+  emitPlayerInfo = () => {
+    for(const clientId in clients){
+      clients[clientId].emit("Info", [].concat(player.json()))
+    }
+  }
+
   // Log which, when and for what reason a client disconnects
   socket.on("disconnect", (reason) => {
     console.log("Client disconnected: " + socket.id + ", reason: " + reason);
   });
 
-  player.addEventListener("paused", () => { 
-    for(const clientId in clients){
-      clients[clientId].emit("Info", [].concat(player.json()))
-    }
-  })
-  player.addEventListener("playing-next-title", () => { 
-    for(const clientId in clients){
-      clients[clientId].emit("Info", [].concat(player.json()))
-    }
-   })
-  player.addEventListener("playing-prev-title", () => { 
-    for(const clientId in clients){
-      clients[clientId].emit("Info", [].concat(player.json()))
-    }
-  })
-  player.addEventListener("volumechanged", () => {
-    for(const clientId in clients){
-      clients[clientId].emit("Info", [].concat(player.json()))
-    }
-   })
+  player.addEventListener("paused", () => {  emitPlayerInfo(); })
+  player.addEventListener("changed-song", () => { emitPlayerInfo() })
+  player.addEventListener("playing-next-title", () => { emitPlayerInfo() })
+  player.addEventListener("playing-prev-title", () => { emitPlayerInfo() })
+  player.addEventListener("volumechanged", () => { emitPlayerInfo() })
 
-  socket.on("+play music", async () => { player.play(); 
-    for(const clientId in clients){
-      clients[clientId].emit("Info", [].concat(player.json()))
-    } 
-  });
-  socket.on("+pause music", async () => { player.pause() });  
-  socket.on("+stop music", async () => { player.stop() });
-  socket.on("+next song", async () => { player.next() });
-  socket.on("+prev song", async () => { player.prev() });
+  socket.on("+play music", async () => { player.play(); emitPlayerInfo()})
+  socket.on("+pause music", async () => { player.pause() })
+  socket.on("+stop music", async () => { player.stop() })
+  socket.on("+next song", async () => { player.next() })
+  socket.on("+prev song", async () => { player.prev() })
   socket.on("+volume", async (volume) => { player.changeVolume(volume) })
   socket.on("+update list", async () => { player.updateList(); });
   socket.on("+enable filemon", async () => { player.changeAutoUpdate(true); })

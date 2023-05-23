@@ -31,7 +31,7 @@ export default class Player extends EventTarget {
     {
         this._constructMusicList(args)
         this._monitorFolder()
-        this._printModuleHeader
+        this._printModuleHeader()
         this._constructPlayer()
     }
 
@@ -146,7 +146,7 @@ export default class Player extends EventTarget {
     {
         if(this.songs.length > 1)
         {
-            if(this.state == PlayerState.Playing || this.state == PlayerState.Paused)
+            if(this.state == PlayerState.Playing)
             {
                 --this.index;
                 if(this.index < 0)
@@ -156,6 +156,14 @@ export default class Player extends EventTarget {
                 this._destroyPlayer()
                 this.play()
             }
+            else {
+                --this.index;
+                if(this.index < 0)
+                    this.index = this.songs.length - 1
+
+                this.dispatchEvent(new Event("changed-song"))
+                this._destroyPlayer()
+            }
         }
     }
 
@@ -163,7 +171,7 @@ export default class Player extends EventTarget {
     {
         if(this.songs.length > 1)
         {
-            if(this.state == PlayerState.Playing || this.state == PlayerState.Paused)
+            if(this.state == PlayerState.Playing)
             {
                 ++this.index;
                 if(this.index >= this.songs.length)
@@ -172,6 +180,14 @@ export default class Player extends EventTarget {
                 this.dispatchEvent(new Event("playing-next-title"))
                 this._destroyPlayer()
                 this.play()
+            }
+            else {
+                ++this.index;
+                if(this.index >= this.songs.length)
+                this.index = 0;
+                
+                this.dispatchEvent(new Event("changed-song"))
+                this._destroyPlayer()
             }
         }
     }
