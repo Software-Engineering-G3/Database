@@ -144,12 +144,32 @@ io.on("connection", (socket) => {
     console.log("Client disconnected: " + socket.id + ", reason: " + reason);
   });
 
-  player.addEventListener("paused", () => { socket.emit("Info", [].concat(player.json())) })
-  player.addEventListener("playing-next-title", () => { socket.emit("Info", [].concat(player.json())) })
-  player.addEventListener("playing-prev-title", () => { socket.emit("Info", [].concat(player.json())) })
-  player.addEventListener("volumechanged", () => { socket.emit("Info", [].concat(player.json())) })
+  player.addEventListener("paused", () => { 
+    for(const clientId in clients){
+      clients[clientId].emit("Info", [].concat(player.json()))
+    }
+  })
+  player.addEventListener("playing-next-title", () => { 
+    for(const clientId in clients){
+      clients[clientId].emit("Info", [].concat(player.json()))
+    }
+   })
+  player.addEventListener("playing-prev-title", () => { 
+    for(const clientId in clients){
+      clients[clientId].emit("Info", [].concat(player.json()))
+    }
+  })
+  player.addEventListener("volumechanged", () => {
+    for(const clientId in clients){
+      clients[clientId].emit("Info", [].concat(player.json()))
+    }
+   })
 
-  socket.on("+play music", async () => { player.play(); socket.emit("Info", [].concat(player.json())) });
+  socket.on("+play music", async () => { player.play(); 
+    for(const clientId in clients){
+      clients[clientId].emit("Info", [].concat(player.json()))
+    } 
+  });
   socket.on("+pause music", async () => { player.pause() });  
   socket.on("+stop music", async () => { player.stop() });
   socket.on("+next song", async () => { player.next() });
