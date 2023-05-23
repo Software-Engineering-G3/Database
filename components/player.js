@@ -124,6 +124,7 @@ export default class Player extends EventTarget {
                 this._constructPlayer()
                 this.state = PlayerState.Playing
                 await this.current.play()
+                console.log("Playing: " + this.current.src);
             }
         } 
         catch (error) 
